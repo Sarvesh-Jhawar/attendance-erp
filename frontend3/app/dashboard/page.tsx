@@ -22,6 +22,20 @@ interface AttendanceData {
   held: number
   attended: number
   percentage: number
+  // Additional fields from backend
+  maxBunksAllowed?: number
+  bunk90?: number
+  bunk85?: number
+  bunk80?: number
+  bunk75?: number
+  bunk70?: number
+  bunk65?: number
+  attend90?: number
+  attend85?: number
+  attend80?: number
+  attend75?: number
+  attend70?: number
+  attend65?: number
 }
 
 export default function Dashboard() {
@@ -69,8 +83,14 @@ export default function Dashboard() {
   const getStatusBadge = (percentage: number) => {
     if (percentage >= 75) return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Safe</Badge>
     if (percentage >= 65)
-      return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Condonation</Badge>
-    return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Detained</Badge>
+      return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Likely to be condonation</Badge>
+    return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Likely to be detained</Badge>
+  }
+
+  const getProgressColor = (percentage: number) => {
+    if (percentage >= 75) return "bg-green-500"
+    if (percentage >= 65) return "bg-yellow-500"
+    return "bg-red-500"
   }
 
   const calculateOverallAttendance = () => {
@@ -79,13 +99,39 @@ export default function Dashboard() {
     return totalHeld === 0 ? 0 : (totalAttended / totalHeld) * 100
   }
 
-  const calculateBunkableClasses = (attended: number, held: number, targetPercent: number) => {
+  const calculateBunkableClasses = (attended: number, held: number, targetPercent: number, item?: AttendanceData) => {
+    // Use pre-calculated values from backend if available
+    if (item) {
+      switch (targetPercent) {
+        case 90: return item.bunk90 || 0
+        case 85: return item.bunk85 || 0
+        case 80: return item.bunk80 || 0
+        case 75: return item.bunk75 || 0
+        case 70: return item.bunk70 || 0
+        case 65: return item.bunk65 || 0
+      }
+    }
+    
+    // Fallback to frontend calculation
     if (held === 0) return 0
     const n = Math.floor((attended * 100) / targetPercent - held)
     return n < 0 ? 0 : n
   }
 
-  const calculateClassesToAttend = (attended: number, held: number, targetPercent: number) => {
+  const calculateClassesToAttend = (attended: number, held: number, targetPercent: number, item?: AttendanceData) => {
+    // Use pre-calculated values from backend if available
+    if (item) {
+      switch (targetPercent) {
+        case 90: return item.attend90 || 0
+        case 85: return item.attend85 || 0
+        case 80: return item.attend80 || 0
+        case 75: return item.attend75 || 0
+        case 70: return item.attend70 || 0
+        case 65: return item.attend65 || 0
+      }
+    }
+    
+    // Fallback to frontend calculation
     if (held === 0) return 0
     const required = (held * (targetPercent / 100) - attended) / (1 - targetPercent / 100)
     const x = Math.ceil(required)
@@ -159,7 +205,7 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         {/* Welcome Message */}
         <div className="mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back, {username}!</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back, {username}</h2>
           <p className="text-white/70 text-sm sm:text-base">Here's your attendance overview</p>
         </div>
 
@@ -172,7 +218,12 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="px-4 sm:px-6">
               <div className="text-xl sm:text-2xl font-bold text-white mb-2">{overallPercentage.toFixed(1)}%</div>
-              <Progress value={overallPercentage} className="mb-2" />
+              <div className="relative h-4 w-full overflow-hidden rounded-full bg-secondary mb-2">
+                <div 
+                  className={`h-full flex-1 transition-all ${getProgressColor(overallPercentage)}`}
+                  style={{ width: `${overallPercentage}%` }}
+                />
+              </div>
               {getStatusBadge(overallPercentage)}
             </CardContent>
           </Card>
@@ -259,38 +310,38 @@ export default function Dashboard() {
                         <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 hidden sm:table-cell">
                           Marks
                         </TableHead>
-                        <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4">Status</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {attendanceData.map((item) => (
+                      {attendanceData.map((item, index) => (
                         <TableRow key={item.sn} className="border-white/10">
-                          <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4">{item.sn}</TableCell>
+                          <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4">
+                            {index === attendanceData.length - 1 ? "" : item.sn}
+                          </TableCell>
                           <TableCell className="text-white font-medium text-xs sm:text-sm px-2 sm:px-4">
                             <div>
-                              <div>{item.subject}</div>
-                              <div className="text-white/60 text-xs sm:hidden">{item.faculty}</div>
+                              <div>{index === attendanceData.length - 1 ? "Total" : item.subject}</div>
+                              <div className="text-white/60 text-xs sm:hidden">{index === attendanceData.length - 1 ? "" : item.faculty}</div>
                             </div>
                           </TableCell>
                           <TableCell className="text-white/80 text-xs sm:text-sm px-2 sm:px-4 hidden sm:table-cell">
-                            {item.faculty}
+                            {index === attendanceData.length - 1 ? "" : item.faculty}
                           </TableCell>
                           <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4">{item.held}</TableCell>
                           <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4">{item.attended}</TableCell>
                           <TableCell
-                            className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 ${getStatusColor(item.percentage)}`}
+                            className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 ${item.held === 0 && item.attended === 0 ? 'text-white/60' : getStatusColor(item.percentage)}`}
                           >
                             <div>
-                              {item.percentage.toFixed(1)}%
+                              {item.held === 0 && item.attended === 0 ? "-" : `${item.percentage.toFixed(1)}%`}
                               <div className="text-white/60 text-xs sm:hidden">
-                                {getMarks(item.percentage) > 0 ? `${getMarks(item.percentage)} marks` : "0 marks"}
+                                {item.held === 0 && item.attended === 0 ? "-" : (getMarks(item.percentage) > 0 ? `${getMarks(item.percentage)} marks` : "0 marks")}
                               </div>
                             </div>
                           </TableCell>
                           <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 hidden sm:table-cell">
-                            {getMarks(item.percentage) > 0 ? getMarks(item.percentage) : "-"}
+                            {item.held === 0 && item.attended === 0 ? "-" : (getMarks(item.percentage) > 0 ? getMarks(item.percentage) : "-")}
                           </TableCell>
-                          <TableCell className="px-2 sm:px-4">{getStatusBadge(item.percentage)}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -322,7 +373,7 @@ export default function Dashboard() {
                         <SelectItem value="overall" className="text-white">
                           Overall
                         </SelectItem>
-                        {attendanceData.map((item, index) => (
+                        {attendanceData.filter(item => item.subject && item.subject.trim() !== "" && item.subject.trim() !== "-").map((item, index) => (
                           <SelectItem key={index} value={index.toString()} className="text-white">
                             {item.subject}
                           </SelectItem>
@@ -350,10 +401,11 @@ export default function Dashboard() {
                           <TableBody>
                             {[90, 85, 80, 75, 70, 65].map((target) => {
                               const data = getSelectedData()
-                              const canSkip = calculateBunkableClasses(data.attended, data.held, target)
+                              const selectedItem = selectedSubject === "overall" ? undefined : attendanceData[Number.parseInt(selectedSubject)]
+                              const canSkip = calculateBunkableClasses(data.attended, data.held, target, selectedItem)
                               return (
                                 <TableRow key={target} className="border-green-500/10">
-                                  <TableCell className="text-white">{target}%</TableCell>
+                                  <TableCell className="text-white">≥{target}%</TableCell>
                                   <TableCell className="text-green-400 font-semibold">{canSkip}</TableCell>
                                 </TableRow>
                               )
@@ -381,10 +433,11 @@ export default function Dashboard() {
                           <TableBody>
                             {[90, 85, 80, 75, 70, 65].map((target) => {
                               const data = getSelectedData()
-                              const mustAttend = calculateClassesToAttend(data.attended, data.held, target)
+                              const selectedItem = selectedSubject === "overall" ? undefined : attendanceData[Number.parseInt(selectedSubject)]
+                              const mustAttend = calculateClassesToAttend(data.attended, data.held, target, selectedItem)
                               return (
                                 <TableRow key={target} className="border-red-500/10">
-                                  <TableCell className="text-white">{target}%</TableCell>
+                                  <TableCell className="text-white">≥{target}%</TableCell>
                                   <TableCell className="text-red-400 font-semibold">{mustAttend}</TableCell>
                                 </TableRow>
                               )

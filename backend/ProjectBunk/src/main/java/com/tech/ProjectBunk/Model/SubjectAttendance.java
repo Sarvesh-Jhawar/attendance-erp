@@ -18,6 +18,8 @@ private int attend80;
 private int attend75;
 private int attend70;
 private int attend65;
+private String subjectCode;
+
 
     @JsonProperty("subject")
     private String subject; // This includes both code and name
@@ -192,5 +194,13 @@ public int getAttend65() {
 public void setAttend65(int attend65) {
     this.attend65 = attend65;
 }
+
+    public String getSubjectCode() {
+        return subjectCode;
+    }
+
+    public void setSubjectCode(String subjectCode) {
+        this.subjectCode = subjectCode;
+    }
 
 }

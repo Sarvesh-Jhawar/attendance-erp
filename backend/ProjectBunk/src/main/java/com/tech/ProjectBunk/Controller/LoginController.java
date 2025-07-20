@@ -5,6 +5,8 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,25 +17,25 @@ import com.tech.ProjectBunk.Model.SubjectAttendance;
 import com.tech.ProjectBunk.Service.AttendanceService;
 
 import jakarta.servlet.http.HttpSession;
-@CrossOrigin(origins = "*")
+
 @RestController
+@CrossOrigin(origins = "http://localhost:3000") // <-- Add this line
 public class LoginController {
 
     @Autowired
     private AttendanceService attendanceService;
-     @PostMapping("/login")
-public RedirectView loginUser(@RequestParam String username, HttpSession session) {
-    session.setAttribute("username", username); // Store in session
-    return new RedirectView("/dashboard.html");
-}
-  @PostMapping("/submit")
-    public List<SubjectAttendance> handleLogin(
+
+    @PostMapping("/login")
+    public RedirectView loginUser(@RequestParam String username, HttpSession session) {
+        session.setAttribute("username", username); // Store in session
+        return new RedirectView("/dashboard.html");
+    }
+
+    @PostMapping("/submit")
+    public ResponseEntity<?> handleLogin(
             @RequestParam("rollno") String rollNo,
             @RequestParam("password") String password) {
-
         try {
-            System.out.println("Starting Python script with rollno: " + rollNo);
-
             ProcessBuilder pb = new ProcessBuilder("python", "src/main/python/extractor.py", rollNo, password);
             pb.redirectErrorStream(true);
             Process process = pb.start();
@@ -42,21 +44,36 @@ public RedirectView loginUser(@RequestParam String username, HttpSession session
             StringBuilder jsonBuilder = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                System.out.println("Python Output: " + line);
                 jsonBuilder.append(line);
             }
 
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                throw new RuntimeException("Python script error, exited with code: " + exitCode);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Python script error, exited with code: " + exitCode);
             }
 
             String jsonOutput = jsonBuilder.toString();
-            return attendanceService.parseAndCalculate(jsonOutput);
+            if (jsonOutput.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("No output from Python script.");
+            }
+
+            // Try parsing JSON, catch parsing errors
+            List<SubjectAttendance> attendanceList;
+            try {
+                attendanceList = attendanceService.parseAndCalculate(jsonOutput);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Invalid data format from Python script.");
+            }
+
+            return ResponseEntity.ok(attendanceList);
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Login error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Login error: " + e.getMessage());
         }
     }
 }
