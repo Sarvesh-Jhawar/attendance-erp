@@ -23,9 +23,10 @@ COPY src src/
 # This will compile Java code and package it into a JAR file.
 RUN mvn clean install -DskipTests
 
-# Install Python dependencies from requirements.txt.
+# Install Python dependencies from requirements.txt, bypassing the system package protection.
+# The --break-system-packages flag is necessary due to PEP 668 on Debian-based systems.
 COPY src/main/python/requirements.txt src/main/python/
-RUN pip3 install -r src/main/python/requirements.txt
+RUN pip3 install -r src/main/python/requirements.txt --break-system-packages
 
 # Expose the port that your Spring Boot application listens on.
 EXPOSE 8084
