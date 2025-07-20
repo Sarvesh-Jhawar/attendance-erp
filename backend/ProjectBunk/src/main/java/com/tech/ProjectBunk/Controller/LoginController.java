@@ -36,7 +36,7 @@ public class LoginController {
             @RequestParam("rollno") String rollNo,
             @RequestParam("password") String password) {
         try {
-            ProcessBuilder pb = new ProcessBuilder("python", "src/main/python/extractor.py", rollNo, password);
+            ProcessBuilder pb = new ProcessBuilder("python3", "src/main/python/extractor.py", rollNo, password);
             pb.redirectErrorStream(true);
             Process process = pb.start();
 

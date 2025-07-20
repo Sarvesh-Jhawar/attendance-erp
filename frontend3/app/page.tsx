@@ -33,7 +33,7 @@ export default function LoginPage() {
       console.log("Sending login request to Java backend...")
       
       // Make POST request to Java backend
-      const response = await fetch("http://localhost:8084/submit", {
+      const response = await fetch("https://attendance-erp.onrender.com/submit", {
         method: "POST",
         body: formData,
         headers: {
