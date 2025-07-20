@@ -1,11 +1,11 @@
-# Use an OpenJDK base image with Maven and Python installed.
-# This image provides both Java and a package manager for Python.
-FROM openjdk:21-jdk-slim-buster
+# Use an OpenJDK base image with Maven and Python installed, based on a current Debian release.
+# 'bookworm' is Debian 12, which is currently stable and supported.
+FROM openjdk:21-jdk-slim-bookworm
 
 # Install Python and pip, if not already present in the base image, and then install Python dependencies.
-# The 'slim-buster' image might not have python3-pip by default, so we ensure it's installed.
+# The 'slim-bookworm' image might not have python3-pip by default, so we ensure it's installed.
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip && \
+    apt-get install -y python3 python3-pip --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
 # Set the working directory inside the container to the root of your backend project.
