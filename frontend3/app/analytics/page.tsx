@@ -368,7 +368,7 @@ export default function Analytics() {
                             : "text-red-400"
                       }`}
                     >
-                      {item.percentage.toFixed(1)}%
+                      {(item.held === 0 && item.attended === 0) ? '0.0%' : item.percentage.toFixed(1) + '%'}
                     </div>
                   </div>
                 </div>

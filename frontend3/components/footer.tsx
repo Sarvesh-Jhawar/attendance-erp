@@ -58,7 +58,6 @@ export default function Footer() {
     disclaimer: {
       title: "Disclaimer",
       content: `
-        <h3 className="text-lg font-semibold mb-4">Disclaimer</h3>
         <p className="mb-3">Important information about this application:</p>
         <ul className="list-disc list-inside space-y-2 mb-4">
           <li>This is an unofficial attendance tracking tool</li>
@@ -67,15 +66,6 @@ export default function Footer() {
           <li>Data accuracy depends on the official ERP system</li>
           <li>Use this tool at your own discretion</li>
         </ul>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
-          <h4 className="font-semibold text-blue-800 mb-2">Acknowledgement</h4>
-          <p className="text-blue-700 text-sm">
-            This application retrieves data from the official CBIT ERP system at{" "}
-            <a href="https://erp.cbit.org.in/" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-900">
-              https://erp.cbit.org.in/
-            </a>
-          </p>
-        </div>
         <p className="text-sm text-gray-400 mt-4">Last updated: July 2025</p>
       `
     }

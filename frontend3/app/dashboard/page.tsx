@@ -94,9 +94,11 @@ export default function Dashboard() {
   }
 
   const calculateOverallAttendance = () => {
-    const totalHeld = attendanceData.reduce((sum, item) => sum + item.held, 0)
-    const totalAttended = attendanceData.reduce((sum, item) => sum + item.attended, 0)
-    return totalHeld === 0 ? 0 : (totalAttended / totalHeld) * 100
+    // Exclude the total row if present
+    const filtered = attendanceData.filter(item => item.subject && item.subject.toLowerCase() !== "total");
+    const totalHeld = filtered.reduce((sum, item) => sum + item.held, 0);
+    const totalAttended = filtered.reduce((sum, item) => sum + item.attended, 0);
+    return totalHeld === 0 ? 0 : (totalAttended / totalHeld) * 100;
   }
 
   const calculateBunkableClasses = (attended: number, held: number, targetPercent: number, item?: AttendanceData) => {
@@ -234,12 +236,20 @@ export default function Dashboard() {
               <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
             </CardHeader>
             <CardContent className="px-4 sm:px-6">
-              <div className="text-xl sm:text-2xl font-bold text-white">
-                {attendanceData.reduce((sum, item) => sum + item.held, 0)}
-              </div>
-              <p className="text-xs text-white/70">
-                {attendanceData.reduce((sum, item) => sum + item.attended, 0)} attended
-              </p>
+              {/* Use the last row (Total) for total and attended classes */}
+              {(() => {
+                const totalRow = attendanceData[attendanceData.length - 1];
+                return (
+                  <>
+                    <div className="text-xl sm:text-2xl font-bold text-white">
+                      {totalRow ? totalRow.held : 0}
+                    </div>
+                    <p className="text-xs text-white/70">
+                      {totalRow ? totalRow.attended : 0} attended
+                    </p>
+                  </>
+                );
+              })()}
             </CardContent>
           </Card>
         </div>
@@ -333,9 +343,9 @@ export default function Dashboard() {
                             className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 ${item.held === 0 && item.attended === 0 ? 'text-white/60' : getStatusColor(item.percentage)}`}
                           >
                             <div>
-                              {item.held === 0 && item.attended === 0 ? "-" : `${item.percentage.toFixed(1)}%`}
+                              {item.held === 0 && item.attended === 0 ? "0%" : `${item.percentage.toFixed(1)}%`}
                               <div className="text-white/60 text-xs sm:hidden">
-                                {item.held === 0 && item.attended === 0 ? "-" : (getMarks(item.percentage) > 0 ? `${getMarks(item.percentage)} marks` : "0 marks")}
+                                {item.held === 0 && item.attended === 0 ? "0 marks" : (getMarks(item.percentage) > 0 ? `${getMarks(item.percentage)} marks` : "0 marks")}
                               </div>
                             </div>
                           </TableCell>
