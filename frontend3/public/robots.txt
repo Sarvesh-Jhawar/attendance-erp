@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://attendance-erp-frontend.vercel.app/sitemap.xml 
