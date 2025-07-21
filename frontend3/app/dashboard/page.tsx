@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { User, LogOut, BarChart3, Info, TrendingUp, TrendingDown, Calendar, BookOpen } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
 interface AttendanceData {
   sn: number
@@ -395,9 +396,19 @@ export default function Dashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card className="bg-green-500/10 border-green-500/20">
                       <CardHeader>
-                        <CardTitle className="text-green-400 flex items-center">
+                        <CardTitle className="text-green-400 flex items-center gap-2">
                           <TrendingDown className="w-5 h-5 mr-2" />
                           Classes You Can Skip
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <span className="ml-1 cursor-pointer">
+                                <Info className="w-4 h-4 text-green-300" />
+                              </span>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 text-sm">
+                              This is how many classes you can miss and still keep your attendance above the target.
+                            </PopoverContent>
+                          </Popover>
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
@@ -427,9 +438,19 @@ export default function Dashboard() {
 
                     <Card className="bg-red-500/10 border-red-500/20">
                       <CardHeader>
-                        <CardTitle className="text-red-400 flex items-center">
+                        <CardTitle className="text-red-400 flex items-center gap-2">
                           <TrendingUp className="w-5 h-5 mr-2" />
                           Classes You Must Attend
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <span className="ml-1 cursor-pointer">
+                                <Info className="w-4 h-4 text-red-300" />
+                              </span>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72 text-sm">
+                              If your attendance is below the target, you must attend this many classes in a row to reach the target percentage.
+                            </PopoverContent>
+                          </Popover>
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
