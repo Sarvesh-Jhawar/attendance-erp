@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://attendance-erp-frontend.vercel.app/sitemap.xml 
+Sitemap: https://cbit-erp-attendance-analyzer.vercel.app/sitemap.xml 
