@@ -339,19 +339,26 @@ export default function Dashboard() {
                             {index === attendanceData.length - 1 ? "" : item.faculty}
                           </TableCell>
                           <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4">{item.held}</TableCell>
-                          <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4">{item.attended}</TableCell>
                           <TableCell
                             className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 ${item.held === 0 && item.attended === 0 ? 'text-white/60' : getStatusColor(item.percentage)}`}
                           >
                             <div>
                               {item.held === 0 && item.attended === 0 ? "0%" : `${item.percentage.toFixed(1)}%`}
                               <div className="text-white/60 text-xs sm:hidden">
-                                {item.held === 0 && item.attended === 0 ? "0 marks" : (getMarks(item.percentage) > 0 ? `${getMarks(item.percentage)} marks` : "0 marks")}
+                                {index === attendanceData.length - 1
+                                  ? ""
+                                  : item.held === 0 && item.attended === 0
+                                    ? "0 marks"
+                                    : (getMarks(item.percentage) > 0 ? `${getMarks(item.percentage)} marks` : "0 marks")}
                               </div>
                             </div>
                           </TableCell>
                           <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 hidden sm:table-cell">
-                            {item.held === 0 && item.attended === 0 ? "-" : (getMarks(item.percentage) > 0 ? getMarks(item.percentage) : "-")}
+                            {index === attendanceData.length - 1
+                              ? ""
+                              : item.held === 0 && item.attended === 0
+                                ? "-"
+                                : (getMarks(item.percentage) > 0 ? getMarks(item.percentage) : "-")}
                           </TableCell>
                         </TableRow>
                       ))}
