@@ -15,6 +15,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { User, LogOut, BarChart3, Info, TrendingUp, TrendingDown, Calendar, BookOpen } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { useToast } from "@/hooks/use-toast"
 
 interface AttendanceData {
   sn: number
@@ -45,6 +47,8 @@ export default function Dashboard() {
   const [showCriteria, setShowCriteria] = useState(false)
   const [username, setUsername] = useState("")
   const router = useRouter()
+  const { toast } = useToast();
+  const [showCalculatorDialog, setShowCalculatorDialog] = useState(false)
 
   useEffect(() => {
     const storedData = localStorage.getItem("attendanceData")
@@ -63,6 +67,11 @@ export default function Dashboard() {
       setTimeout(() => {
         localStorage.removeItem("loginSuccess")
       }, 3000)
+      // Show calculator dialog if not already shown
+      if (!localStorage.getItem("calculatorDialogShown")) {
+        setShowCalculatorDialog(true)
+        localStorage.setItem("calculatorDialogShown", "true")
+      }
     }
   }, [])
 
@@ -160,6 +169,22 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Calculator Feature Dialog */}
+      <Dialog open={showCalculatorDialog} onOpenChange={setShowCalculatorDialog}>
+        <DialogContent className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border border-white/20 shadow-xl backdrop-blur-xl text-white">
+          <DialogHeader>
+            <DialogTitle className="text-white text-xl font-bold text-center">Must try the Calculator feature!</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-2 px-4 rounded shadow w-full transition-colors duration-200"
+              onClick={() => setShowCalculatorDialog(false)}
+            >
+              OK
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {/* Header */}
       <div className="border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
@@ -339,6 +364,7 @@ export default function Dashboard() {
                             {index === attendanceData.length - 1 ? "" : item.faculty}
                           </TableCell>
                           <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4">{item.held}</TableCell>
+                          <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4">{item.attended}</TableCell>
                           <TableCell
                             className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 ${item.held === 0 && item.attended === 0 ? 'text-white/60' : getStatusColor(item.percentage)}`}
                           >
