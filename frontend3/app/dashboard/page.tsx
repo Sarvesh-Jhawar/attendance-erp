@@ -2,7 +2,7 @@
 
 import { Label } from "@/components/ui/label"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -48,7 +48,10 @@ export default function Dashboard() {
   const [username, setUsername] = useState("")
   const router = useRouter()
   const { toast } = useToast();
-  const [showCalculatorDialog, setShowCalculatorDialog] = useState(false)
+  // Remove showCalculatorDialog state
+  // const [showCalculatorDialog, setShowCalculatorDialog] = useState(false)
+  const [showCalculatorTooltip, setShowCalculatorTooltip] = useState(false)
+  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const storedData = localStorage.getItem("attendanceData")
@@ -62,16 +65,28 @@ export default function Dashboard() {
     }
 
     // Show login success message
-    const loginSuccess = localStorage.getItem("loginSuccess")
-    if (loginSuccess === "true") {
-      setTimeout(() => {
-        localStorage.removeItem("loginSuccess")
-      }, 3000)
-      // Show calculator dialog if not already shown
-      if (!localStorage.getItem("calculatorDialogShown")) {
-        setShowCalculatorDialog(true)
-        localStorage.setItem("calculatorDialogShown", "true")
-      }
+    // const loginSuccess = localStorage.getItem("loginSuccess")
+    // if (loginSuccess === "true") {
+    //   setTimeout(() => {
+    //     localStorage.removeItem("loginSuccess")
+    //   }, 3000)
+    //   // Show calculator dialog if not already shown
+    //   if (!localStorage.getItem("calculatorDialogShown")) {
+    //     setShowCalculatorDialog(true)
+    //     localStorage.setItem("calculatorDialogShown", "true")
+    //   }
+    // }
+
+    // Show one-time tooltip for Calculator tab
+    if (!localStorage.getItem("calculatorTooltipShown")) {
+      setShowCalculatorTooltip(true)
+      tooltipTimeoutRef.current = setTimeout(() => {
+        setShowCalculatorTooltip(false)
+        localStorage.setItem("calculatorTooltipShown", "true")
+      }, 12000) // 12 seconds
+    }
+    return () => {
+      if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current)
     }
   }, [])
 
@@ -169,8 +184,8 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Calculator Feature Dialog */}
-      <Dialog open={showCalculatorDialog} onOpenChange={setShowCalculatorDialog}>
+      {/* Remove the Calculator Feature Dialog */}
+      {/* <Dialog open={showCalculatorDialog} onOpenChange={setShowCalculatorDialog}>
         <DialogContent className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border border-white/20 shadow-xl backdrop-blur-xl text-white">
           <DialogHeader>
             <DialogTitle className="text-white text-xl font-bold text-center">Must try the Calculator feature!</DialogTitle>
@@ -184,7 +199,7 @@ export default function Dashboard() {
             </button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
       {/* Header */}
       <div className="border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
@@ -281,19 +296,56 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="subjects" className="space-y-4 sm:space-y-6">
-          <TabsList className="bg-black/40 backdrop-blur-xl border-white/20 w-full sm:w-auto">
+          <TabsList className="bg-black/40 backdrop-blur-xl border-white/20 w-full sm:w-auto relative">
             <TabsTrigger
               value="subjects"
               className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base"
             >
               Subjects
             </TabsTrigger>
-            <TabsTrigger
-              value="calculator"
-              className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base"
-            >
-              Calculator
-            </TabsTrigger>
+            <div className="relative flex-1 sm:flex-none">
+              <TabsTrigger
+                value="calculator"
+                className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base flex items-center justify-center gap-2 relative"
+              >
+                Calculator
+                {/* Badge */}
+                <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white animate-pulse shadow-lg select-none">
+                  Try this
+                </span>
+              </TabsTrigger>
+              {/* Tooltip/Coach Mark */}
+              {showCalculatorTooltip && (
+                <div
+                  className="z-50 w-max max-w-xs text-black text-xs sm:text-sm rounded-lg px-3 py-2 shadow-lg border border-purple-500 animate-fade-in-up"
+                  style={{
+                    position: 'absolute',
+                    left: '100%',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: '#fff'
+                  }}
+                >
+                  <span className="block text-center">Try this feature! 🎯</span>
+                  {/* Arrow for desktop */}
+                  <div className="hidden sm:block absolute -left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-t border-l border-purple-500 rotate-45"
+                    style={{ background: '#fff' }}></div>
+                  {/* Arrow for mobile (below tab) */}
+                  <div className="block sm:hidden absolute left-1/2 -translate-x-1/2 -top-2 w-3 h-3 border-l border-t border-purple-500 rotate-45"
+                    style={{ background: '#fff' }}></div>
+                  <style>{`
+                    @media (max-width: 640px) {
+                      .z-50.w-max.max-w-xs.text-black {
+                        left: 50% !important;
+                        top: 100% !important;
+                        transform: translateX(-50%) !important;
+                        margin-top: 0.5rem !important;
+                      }
+                    }
+                  `}</style>
+                </div>
+              )}
+            </div>
           </TabsList>
 
           <TabsContent value="subjects">
@@ -405,26 +457,30 @@ export default function Dashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="mb-6">
-                    <Label htmlFor="subject-select" className="text-white/90 mb-2 block">
-                      Select Subject
-                    </Label>
-                    <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-black/80 backdrop-blur-xl border-white/20">
-                        <SelectItem value="overall" className="text-white">
-                          Overall
-                        </SelectItem>
-                        {attendanceData.filter(item => item.subject && item.subject.trim() !== "" && item.subject.trim() !== "-").map((item, index) => (
-                          <SelectItem key={index} value={index.toString()} className="text-white">
-                            {item.subject}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  {/* Glowing label above the dropdown */}
+                  <div className="mb-2 flex items-center">
+                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg animate-pulse select-none" style={{ boxShadow: '0 0 8px 2px #a21caf55' }}>
+                      Select Subject / Overall
+                    </span>
                   </div>
+                  <Label htmlFor="subject-select" className="text-white/90 mb-2 block sr-only">
+                    Select Subject / Overall
+                  </Label>
+                  <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                    <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-black/80 backdrop-blur-xl border-white/20">
+                      <SelectItem value="overall" className="text-white">
+                        Overall
+                      </SelectItem>
+                      {attendanceData.filter(item => item.subject && item.subject.trim() !== "" && item.subject.trim() !== "-").map((item, index) => (
+                        <SelectItem key={index} value={index.toString()} className="text-white">
+                          {item.subject}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card className="bg-green-500/10 border-green-500/20">
@@ -435,7 +491,7 @@ export default function Dashboard() {
                           <Popover>
                             <PopoverTrigger asChild>
                               <span className="ml-1 cursor-pointer">
-                                <Info className="w-4 h-4 text-green-300" />
+                                <Info className="w-4 h-4 text-white" />
                               </span>
                             </PopoverTrigger>
                             <PopoverContent className="w-72 text-sm">
@@ -477,11 +533,11 @@ export default function Dashboard() {
                           <Popover>
                             <PopoverTrigger asChild>
                               <span className="ml-1 cursor-pointer">
-                                <Info className="w-4 h-4 text-red-300" />
+                                <Info className="w-4 h-4 text-white" />
                               </span>
                             </PopoverTrigger>
                             <PopoverContent className="w-72 text-sm">
-                              If your attendance is below the target, you must attend this many classes in a row to reach the target percentage.
+                              This is how many classes you must attend to reach your target attendance percentage.
                             </PopoverContent>
                           </Popover>
                         </CardTitle>
