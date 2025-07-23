@@ -455,6 +455,10 @@ export default function Dashboard() {
                   <CardDescription className="text-white/70">
                     Calculate how many classes you can skip or need to attend
                   </CardDescription>
+                  <p className="bg-blue-600/80 text-white text-xs mt-2 px-3 py-2 rounded-lg font-semibold shadow-md flex items-center w-fit">
+                    Click on
+                    <span className="inline-block align-middle mx-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-info w-4 h-4 inline"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg></span>for more help.
+                  </p>
                 </CardHeader>
                 <CardContent>
                   {/* Glowing label above the dropdown */}
@@ -537,7 +541,7 @@ export default function Dashboard() {
                               </span>
                             </PopoverTrigger>
                             <PopoverContent className="w-72 text-sm">
-                              This is how many classes you must attend to reach your target attendance percentage.
+                              This is how many classes you must attend in a row to reach your target attendance percentage.
                             </PopoverContent>
                           </Popover>
                         </CardTitle>
