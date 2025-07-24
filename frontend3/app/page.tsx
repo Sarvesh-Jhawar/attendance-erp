@@ -30,8 +30,6 @@ export default function LoginPage() {
       formData.append("rollno", username)
       formData.append("password", password)
 
-      console.log("Sending login request to Java backend...")
-      
       // Make POST request to Java backend
       const response = await fetch("https://attendance-erp.onrender.com/submit", {
         method: "POST",
@@ -41,12 +39,8 @@ export default function LoginPage() {
         },
       })
 
-      console.log("Response status:", response.status)
-      console.log("Response headers:", response.headers)
-
       if (!response.ok) {
         const errorText = await response.text()
-        console.error("Server error response:", errorText)
         
         // Handle different HTTP status codes and error messages
         let errorMessage = "Login failed. Please try again later."
@@ -75,7 +69,6 @@ export default function LoginPage() {
 
       // Parse the response data
       const rawData = await response.json()
-      console.log("Raw response data:", rawData)
       
       // Transform data to match frontend expectations if needed
       let attendanceData = rawData
@@ -106,8 +99,6 @@ export default function LoginPage() {
         }))
       }
       
-      console.log("Transformed attendance data:", attendanceData)
-      
       // Validate data
       if (!Array.isArray(attendanceData) || attendanceData.length === 0) {
         throw new Error("No attendance data received from server")
@@ -118,12 +109,9 @@ export default function LoginPage() {
       localStorage.setItem("loginSuccess", "true")
       localStorage.setItem("attendanceData", JSON.stringify(attendanceData))
       
-      console.log("Login successful, navigating to dashboard...")
-      
       // Navigate to dashboard
       router.push("/dashboard")
     } catch (error) {
-      console.error("Login failed:", error)
       
       // Handle network/connection errors
       let errorMessage = "Cannot connect to server. Please try again later."
