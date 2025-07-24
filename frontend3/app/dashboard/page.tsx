@@ -167,9 +167,8 @@ export default function Dashboard() {
 
   const getSelectedData = () => {
     if (selectedSubject === "overall") {
-      const totalHeld = attendanceData.reduce((sum, item) => sum + item.held, 0)
-      const totalAttended = attendanceData.reduce((sum, item) => sum + item.attended, 0)
-      return { attended: totalAttended, held: totalHeld }
+      const totalRow = attendanceData[attendanceData.length - 1];
+      return { attended: totalRow?.attended || 0, held: totalRow?.held || 0 };
     }
     const index = Number.parseInt(selectedSubject)
     return attendanceData[index] || { attended: 0, held: 0 }
