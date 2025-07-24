@@ -470,7 +470,7 @@ export default function Dashboard() {
                     Select Subject / Overall
                   </Label>
                   <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                    <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                    <SelectTrigger className="bg-white/10 border-2 border-blue-400 focus:border-purple-500 shadow-lg text-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-black/80 backdrop-blur-xl border-white/20">
