@@ -3,10 +3,12 @@ package com.tech.ProjectBunk.Service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tech.ProjectBunk.Model.SubjectAttendance;
+import com.tech.ProjectBunk.Model.TodayTimetableEntry;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AttendanceService {
@@ -80,5 +82,31 @@ public class AttendanceService {
     calculateAllThresholds(subjects);
     return subjects;
 }
+
+    // New DTO for combined response
+    public static class AttendanceAndTimetableDTO {
+        private List<SubjectAttendance> attendance;
+        private List<TodayTimetableEntry> todayTimetable;
+
+        public AttendanceAndTimetableDTO() {}
+        public AttendanceAndTimetableDTO(List<SubjectAttendance> attendance, List<TodayTimetableEntry> todayTimetable) {
+            this.attendance = attendance;
+            this.todayTimetable = todayTimetable;
+        }
+        public List<SubjectAttendance> getAttendance() { return attendance; }
+        public void setAttendance(List<SubjectAttendance> attendance) { this.attendance = attendance; }
+        public List<TodayTimetableEntry> getTodayTimetable() { return todayTimetable; }
+        public void setTodayTimetable(List<TodayTimetableEntry> todayTimetable) { this.todayTimetable = todayTimetable; }
+    }
+
+    // New method to parse new extractor output
+    public AttendanceAndTimetableDTO parseAttendanceAndTimetable(String json) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> map = mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+        List<SubjectAttendance> attendance = mapper.convertValue(map.get("attendance"), new TypeReference<List<SubjectAttendance>>() {});
+        List<TodayTimetableEntry> todayTimetable = mapper.convertValue(map.get("today_timetable"), new TypeReference<List<TodayTimetableEntry>>() {});
+        calculateAllThresholds(attendance);
+        return new AttendanceAndTimetableDTO(attendance, todayTimetable);
+    }
 
 }

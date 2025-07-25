@@ -2,9 +2,11 @@ import sys
 import requests
 from bs4 import BeautifulSoup
 import json
+from datetime import datetime
 
 roll_no = sys.argv[1]
 password = sys.argv[2]
+mode = sys.argv[3] if len(sys.argv) > 3 else "attendance"
 
 def extract_asp_fields(soup):
     return {
@@ -12,6 +14,37 @@ def extract_asp_fields(soup):
         "__VIEWSTATEGENERATOR": soup.find("input", {"name": "__VIEWSTATEGENERATOR"})["value"],
         "__EVENTVALIDATION": soup.find("input", {"name": "__EVENTVALIDATION"})["value"]
     }
+
+def extract_todays_timetable(soup):
+    timetable_table = soup.find("table", {"id": "ctl00_cpStud_grdTimetable"})
+    if not timetable_table:
+        return {"error": "Couldn't find the timetable table"}
+    rows = timetable_table.find_all("tr")
+    if not rows or len(rows) < 2:
+        return {"error": "Timetable table structure is invalid"}
+    # FIX: Accept both th and td for header row
+    header_cells = rows[0].find_all(["th", "td"])[1:]
+    periods = [cell.get_text(strip=True) for cell in header_cells]
+    day_abbr = datetime.now().strftime("%a").upper()  # e.g., 'MON'
+    day_map = {"MON": "MON", "TUE": "TUE", "WED": "WED", "THU": "THU", "FRI": "FRI", "SAT": "SAT", "SUN": "SUN"}
+    today_abbr = day_map.get(day_abbr, day_abbr)
+    today_row = None
+    for row in rows[1:]:
+        cells = row.find_all("td")
+        if not cells:
+            continue
+        if cells[0].get_text(strip=True).upper() == today_abbr:
+            today_row = cells[1:]  # skip first cell (day)
+            break
+    if today_row is None:
+        return {"error": f"No timetable row found for {today_abbr}"}
+    timetable = []
+    for period, cell in zip(periods, today_row):
+        subject = cell.get_text(strip=True)
+        if not subject:
+            subject = "Free"
+        timetable.append({"period": period, "subject": subject})
+    return timetable
 
 try:
     # Initialize session
@@ -62,9 +95,15 @@ try:
     }
     res_postback = session.post(dashboard_url, data=postback_payload)
 
-    # Extract attendance table
-    soup_attendance = BeautifulSoup(res_postback.text, "html.parser")
-    attendance_table = soup_attendance.find("table", {"id": "ctl00_cpStud_grdSubject"})
+    soup_dashboard_final = BeautifulSoup(res_postback.text, "html.parser")
+
+    if mode == "timetable":
+        timetable = extract_todays_timetable(soup_dashboard_final)
+        print(json.dumps({"attendance": [], "today_timetable": timetable}))
+        sys.exit(0)
+
+    # Extract attendance table (default)
+    attendance_table = soup_dashboard_final.find("table", {"id": "ctl00_cpStud_grdSubject"})
 
     if not attendance_table:
         print(json.dumps({"error": "Couldn't find the attendance table"}))
@@ -76,7 +115,6 @@ try:
         cols = row.find_all("td")
         if len(cols) < 6:
             continue
-
         data = {
             "subject": cols[1].get_text(strip=True),
             "faculty": cols[2].get_text(strip=True),
@@ -85,9 +123,9 @@ try:
             "percentage": cols[5].get_text(strip=True)
         }
         attendance_list.append(data)
-
-    # Output final JSON
-    print(json.dumps(attendance_list))
+    # Also extract timetable for today
+    timetable = extract_todays_timetable(soup_dashboard_final)
+    print(json.dumps({"attendance": attendance_list, "today_timetable": timetable}))
 
 except Exception as e:
     print(json.dumps({"error": str(e)}))
