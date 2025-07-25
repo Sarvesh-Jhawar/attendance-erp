@@ -52,10 +52,16 @@ export default function Dashboard() {
   // const [showCalculatorDialog, setShowCalculatorDialog] = useState(false)
   const [showCalculatorTooltip, setShowCalculatorTooltip] = useState(false)
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [todayTimetable, setTodayTimetable] = useState<{ period: string; subject: string }[]>([]);
+  const [showPlanTodayNote, setShowPlanTodayNote] = useState(false);
 
   useEffect(() => {
     const storedData = localStorage.getItem("attendanceData")
     const storedUsername = localStorage.getItem("bunk_username")
+    const storedTimetable = localStorage.getItem("todayTimetable");
+    if (storedTimetable) {
+      setTodayTimetable(JSON.parse(storedTimetable));
+    }
 
     if (storedData) {
       setAttendanceData(JSON.parse(storedData))
@@ -89,6 +95,12 @@ export default function Dashboard() {
       if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current)
     }
   }, [])
+
+  useEffect(() => {
+    setShowPlanTodayNote(true);
+    const timer = setTimeout(() => setShowPlanTodayNote(false), 6000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const getMarks = (percentage: number) => {
     if (percentage >= 85) return 5
@@ -183,22 +195,6 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Remove the Calculator Feature Dialog */}
-      {/* <Dialog open={showCalculatorDialog} onOpenChange={setShowCalculatorDialog}>
-        <DialogContent className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border border-white/20 shadow-xl backdrop-blur-xl text-white">
-          <DialogHeader>
-            <DialogTitle className="text-white text-xl font-bold text-center">Must try the Calculator feature!</DialogTitle>
-          </DialogHeader>
-          <DialogFooter>
-            <button
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-2 px-4 rounded shadow w-full transition-colors duration-200"
-              onClick={() => setShowCalculatorDialog(false)}
-            >
-              OK
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
       {/* Header */}
       <div className="border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
@@ -245,11 +241,74 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        {/* Themed ERP data note */}
+        <div className="mb-4">
+          <div className="bg-gradient-to-r from-blue-700/80 via-purple-700/80 to-slate-800/80 text-white text-xs sm:text-sm rounded-lg px-4 py-2 font-semibold shadow-md border border-white/10">
+            Note: All calculations are based on the latest data of your ERP portal.
+          </div>
+        </div>
         {/* Welcome Message */}
         <div className="mb-6 sm:mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back, {username}</h2>
           <p className="text-white/70 text-sm sm:text-base">Here's your attendance overview</p>
         </div>
+
+        {/* Today's Timetable - simple two-row table */}
+        {todayTimetable && todayTimetable.length > 0 ? (
+          <div className="mb-8">
+            <Card className="bg-black/40 backdrop-blur-xl border-white/20">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <div className="flex flex-row items-center gap-2 relative">
+                    <CardTitle className="text-white text-lg sm:text-xl inline-block">Today's Timetable</CardTitle>
+                  </div>
+                  <CardDescription className="text-white/70 text-sm">Your schedule for today</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="w-full overflow-x-auto whitespace-nowrap py-2">
+                  <div className="flex flex-row gap-4 min-w-max">
+                    {todayTimetable.map((item, idx) => {
+                      // If subject is 'Free' or similar, show 'P{number}' and 'Free Period'
+                      const isFree = item.subject.trim().toLowerCase() === 'free';
+                      let periodLabel = item.period;
+                      let subjectLabel = '';
+                      if (isFree) {
+                        periodLabel = `P${idx + 1}`;
+                        subjectLabel = 'Free Period';
+                      } else {
+                        // Try to find the full subject name from attendanceData
+                        subjectLabel = item.subject;
+                        if (attendanceData && attendanceData.length > 0) {
+                          const code = item.subject.split('(')[0].split(':')[0].trim().toLowerCase();
+                          const attMatch = attendanceData.find(a => a.subject.split(':')[0].trim().toLowerCase() === code);
+                          if (attMatch) {
+                            subjectLabel = attMatch.subject;
+                          }
+                        }
+                      }
+                      return (
+                        <div
+                          key={idx}
+                          className="inline-block min-w-[160px] max-w-[240px] bg-white/10 rounded-xl shadow hover:bg-white/20 transition p-4 mx-0 flex flex-col items-center justify-center"
+                        >
+                          <div className="font-bold text-blue-300 text-xs sm:text-sm mb-1 text-center">{periodLabel}</div>
+                          <div className="text-white text-sm sm:text-base text-center font-medium break-words whitespace-pre-line w-full">{subjectLabel}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="mb-8">
+            <div className="bg-gradient-to-r from-blue-700/80 via-purple-700/80 to-slate-800/80 text-white text-xs sm:text-sm rounded-lg px-4 py-3 font-semibold shadow-md border border-white/10 text-center">
+              No classes to show for today's timetable.
+            </div>
+          </div>
+        )}
 
         {/* Overall Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">

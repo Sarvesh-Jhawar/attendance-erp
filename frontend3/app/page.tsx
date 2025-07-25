@@ -31,7 +31,7 @@ export default function LoginPage() {
       formData.append("password", password)
 
       // Make POST request to Java backend
-      const response = await fetch("https://attendance-erp.onrender.com/submit", {
+      const response = await fetch("https://attendance-erp.onrender.com/submit", { // Use deployed backend for production
         method: "POST",
         body: formData,
         headers: {
@@ -68,49 +68,46 @@ export default function LoginPage() {
       }
 
       // Parse the response data
-      const rawData = await response.json()
-      
-      // Transform data to match frontend expectations if needed
-      let attendanceData = rawData
-      
-      // Transform data to match frontend expectations based on actual backend format
-      if (Array.isArray(rawData) && rawData.length > 0) {
-        attendanceData = rawData.map((item, index) => ({
-          sn: index + 1,
-          subject: item.subject || item.subjectCode || '',
-          faculty: item.faculty || '',
-          held: parseInt(item.held) || 0,
-          attended: parseInt(item.attended) || 0,
-          percentage: parseFloat(item.percentage) || 0,
-          // Store additional backend data for potential future use
-          maxBunksAllowed: item.maxBunksAllowed || 0,
-          bunk90: item.bunk90 || 0,
-          bunk85: item.bunk85 || 0,
-          bunk80: item.bunk80 || 0,
-          bunk75: item.bunk75 || 0,
-          bunk70: item.bunk70 || 0,
-          bunk65: item.bunk65 || 0,
-          attend90: item.attend90 || 0,
-          attend85: item.attend85 || 0,
-          attend80: item.attend80 || 0,
-          attend75: item.attend75 || 0,
-          attend70: item.attend70 || 0,
-          attend65: item.attend65 || 0
-        }))
-      }
-      
+      const rawData = await response.json();
+      const attendanceArray = rawData.attendance || [];
+      const timetableArray = rawData.todayTimetable || rawData.today_timetable || [];
+
+      // Transform attendance data as before
+      const attendanceData = attendanceArray.map((item: any, index: number) => ({
+        sn: index + 1,
+        subject: item.subject || item.subjectCode || '',
+        faculty: item.faculty || '',
+        held: parseInt(item.held) || 0,
+        attended: parseInt(item.attended) || 0,
+        percentage: parseFloat(item.percentage) || 0,
+        maxBunksAllowed: item.maxBunksAllowed || 0,
+        bunk90: item.bunk90 || 0,
+        bunk85: item.bunk85 || 0,
+        bunk80: item.bunk80 || 0,
+        bunk75: item.bunk75 || 0,
+        bunk70: item.bunk70 || 0,
+        bunk65: item.bunk65 || 0,
+        attend90: item.attend90 || 0,
+        attend85: item.attend85 || 0,
+        attend80: item.attend80 || 0,
+        attend75: item.attend75 || 0,
+        attend70: item.attend70 || 0,
+        attend65: item.attend65 || 0
+      }));
+
       // Validate data
       if (!Array.isArray(attendanceData) || attendanceData.length === 0) {
-        throw new Error("No attendance data received from server")
+        throw new Error("No attendance data received from server");
       }
-      
+
       // Store user data
-      localStorage.setItem("bunk_username", username)
-      localStorage.setItem("loginSuccess", "true")
-      localStorage.setItem("attendanceData", JSON.stringify(attendanceData))
-      
+      localStorage.setItem("bunk_username", username);
+      localStorage.setItem("loginSuccess", "true");
+      localStorage.setItem("attendanceData", JSON.stringify(attendanceData));
+      localStorage.setItem("todayTimetable", JSON.stringify(timetableArray));
+
       // Navigate to dashboard
-      router.push("/dashboard")
+      router.push("/dashboard");
     } catch (error) {
       
       // Handle network/connection errors
