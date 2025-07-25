@@ -249,7 +249,7 @@ export default function Dashboard() {
         </div>
         {/* Welcome Message */}
         <div className="mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back, {username}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back, {username && (username.endsWith('P') || username.endsWith('p')) ? username.slice(0, -1) : username}</h2>
           <p className="text-white/70 text-sm sm:text-base">Here's your attendance overview</p>
         </div>
 
@@ -514,8 +514,8 @@ export default function Dashboard() {
                     Calculate how many classes you can skip or need to attend
                   </CardDescription>
                   <p className="bg-blue-600/80 text-white text-xs mt-2 px-3 py-2 rounded-lg font-semibold shadow-md flex items-center w-fit">
-                    Click on
-                    <span className="inline-block align-middle mx-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-info w-4 h-4 inline"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg></span>for more help.
+                    Use the
+                    <span className="inline-block align-middle mx-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-info w-4 h-4 inline"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg></span>icon for more help.
                   </p>
                 </CardHeader>
                 <CardContent>
