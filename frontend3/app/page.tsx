@@ -31,8 +31,8 @@ export default function LoginPage() {
       formData.append("password", password)
 
       // Make POST request to Java backend
-      // const response = await fetch("https://attendance-erp.onrender.com/submit", { // Use deployed backend for production
-      const response = await fetch("http://localhost:8084/submit", { // Use local backend for testing
+      const response = await fetch("https://attendance-erp.onrender.com/submit", { // Use deployed backend for production
+      // const response = await fetch("http://localhost:8084/submit", { // Use local backend for testing
         method: "POST",
         body: formData,
         headers: {
