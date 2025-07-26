@@ -59,8 +59,21 @@ export default function Dashboard() {
     const storedData = localStorage.getItem("attendanceData")
     const storedUsername = localStorage.getItem("bunk_username")
     const storedTimetable = localStorage.getItem("todayTimetable");
+    
+    // Safely parse timetable data
     if (storedTimetable) {
-      setTodayTimetable(JSON.parse(storedTimetable));
+      try {
+        const parsedTimetable = JSON.parse(storedTimetable);
+        if (Array.isArray(parsedTimetable)) {
+          setTodayTimetable(parsedTimetable);
+        } else {
+          // If it's not an array (e.g., error object), set empty array
+          setTodayTimetable([]);
+        }
+      } catch (error) {
+        console.error("Error parsing timetable:", error);
+        setTodayTimetable([]);
+      }
     }
 
     if (storedData) {
@@ -304,9 +317,19 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="mb-8">
-            <div className="bg-gradient-to-r from-blue-700/80 via-purple-700/80 to-slate-800/80 text-white text-xs sm:text-sm rounded-lg px-4 py-3 font-semibold shadow-md border border-white/10 text-center">
-              No classes to show for today's timetable.
-            </div>
+            <Card className="bg-black/40 backdrop-blur-xl border-white/20">
+              <CardHeader>
+                <CardTitle className="text-white text-lg sm:text-xl">Today's Timetable</CardTitle>
+                <CardDescription className="text-white/70 text-sm">Your schedule for today</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <div className="text-white/60 text-sm mb-2">📅</div>
+                  <div className="text-white/80 text-base font-medium">No classes scheduled for today</div>
+                  <div className="text-white/60 text-sm mt-1">It might be a weekend or holiday</div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 

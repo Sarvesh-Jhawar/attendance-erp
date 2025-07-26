@@ -31,7 +31,8 @@ export default function LoginPage() {
       formData.append("password", password)
 
       // Make POST request to Java backend
-      const response = await fetch("https://attendance-erp.onrender.com/submit", { // Use deployed backend for production
+      // const response = await fetch("https://attendance-erp.onrender.com/submit", { // Use deployed backend for production
+      const response = await fetch("http://localhost:8084/submit", { // Use local backend for testing
         method: "POST",
         body: formData,
         headers: {
@@ -69,8 +70,25 @@ export default function LoginPage() {
 
       // Parse the response data
       const rawData = await response.json();
+      console.log("Raw data received:", rawData);
+      
       const attendanceArray = rawData.attendance || [];
       const timetableArray = rawData.todayTimetable || rawData.today_timetable || [];
+
+      // Validate timetable data - ensure it's an array and handle error objects
+      let validTimetableArray = [];
+      if (Array.isArray(timetableArray)) {
+        validTimetableArray = timetableArray;
+        console.log("Valid timetable array:", validTimetableArray);
+      } else if (timetableArray && typeof timetableArray === 'object' && timetableArray.error) {
+        // If it's an error object, use empty array
+        console.log("Timetable error:", timetableArray.error);
+        validTimetableArray = [];
+      } else {
+        // Fallback to empty array
+        console.log("Timetable is null/undefined, using empty array");
+        validTimetableArray = [];
+      }
 
       // Transform attendance data as before
       const attendanceData = attendanceArray.map((item: any, index: number) => ({
@@ -104,7 +122,7 @@ export default function LoginPage() {
       localStorage.setItem("bunk_username", username);
       localStorage.setItem("loginSuccess", "true");
       localStorage.setItem("attendanceData", JSON.stringify(attendanceData));
-      localStorage.setItem("todayTimetable", JSON.stringify(timetableArray));
+      localStorage.setItem("todayTimetable", JSON.stringify(validTimetableArray));
 
       // Navigate to dashboard
       router.push("/dashboard");
