@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
 
 @Service
 public class AttendanceService {
@@ -104,7 +105,44 @@ public class AttendanceService {
         ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> map = mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
         List<SubjectAttendance> attendance = mapper.convertValue(map.get("attendance"), new TypeReference<List<SubjectAttendance>>() {});
-        List<TodayTimetableEntry> todayTimetable = mapper.convertValue(map.get("today_timetable"), new TypeReference<List<TodayTimetableEntry>>() {});
+        
+        // Handle timetable data safely - it might be empty, null, or contain an error
+        List<TodayTimetableEntry> todayTimetable = new ArrayList<>();
+        Object timetableData = map.get("today_timetable");
+        
+        System.out.println("[DEBUG] Raw timetable data: " + timetableData);
+        
+        if (timetableData != null) {
+            // Check if it's an error object
+            if (timetableData instanceof Map) {
+                Map<String, Object> timetableMap = (Map<String, Object>) timetableData;
+                if (timetableMap.containsKey("error")) {
+                    // It's an error object, return empty list
+                    System.out.println("[DEBUG] Timetable error: " + timetableMap.get("error"));
+                } else {
+                    // It's a valid timetable array
+                    try {
+                        todayTimetable = mapper.convertValue(timetableData, new TypeReference<List<TodayTimetableEntry>>() {});
+                        System.out.println("[DEBUG] Successfully parsed timetable with " + todayTimetable.size() + " entries");
+                    } catch (Exception e) {
+                        System.out.println("[DEBUG] Failed to parse timetable: " + e.getMessage());
+                        // Return empty list on parsing error
+                    }
+                }
+            } else if (timetableData instanceof List) {
+                // It's already a list
+                try {
+                    todayTimetable = mapper.convertValue(timetableData, new TypeReference<List<TodayTimetableEntry>>() {});
+                    System.out.println("[DEBUG] Successfully parsed timetable list with " + todayTimetable.size() + " entries");
+                } catch (Exception e) {
+                    System.out.println("[DEBUG] Failed to parse timetable list: " + e.getMessage());
+                    // Return empty list on parsing error
+                }
+            }
+        } else {
+            System.out.println("[DEBUG] Timetable data is null - this is normal for holidays/weekends");
+        }
+        
         calculateAllThresholds(attendance);
         return new AttendanceAndTimetableDTO(attendance, todayTimetable);
     }

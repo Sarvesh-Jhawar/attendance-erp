@@ -18,10 +18,12 @@ def extract_asp_fields(soup):
 def extract_todays_timetable(soup):
     timetable_table = soup.find("table", {"id": "ctl00_cpStud_grdTimetable"})
     if not timetable_table:
-        return {"error": "Couldn't find the timetable table"}
+        # Return empty array instead of error object for weekends/holidays
+        return []
     rows = timetable_table.find_all("tr")
     if not rows or len(rows) < 2:
-        return {"error": "Timetable table structure is invalid"}
+        # Return empty array instead of error object
+        return []
     # FIX: Accept both th and td for header row
     header_cells = rows[0].find_all(["th", "td"])[1:]
     periods = [cell.get_text(strip=True) for cell in header_cells]
@@ -37,7 +39,8 @@ def extract_todays_timetable(soup):
             today_row = cells[1:]  # skip first cell (day)
             break
     if today_row is None:
-        return {"error": f"No timetable row found for {today_abbr}"}
+        # Return empty array instead of error object for weekends/holidays
+        return []
     timetable = []
     for period, cell in zip(periods, today_row):
         subject = cell.get_text(strip=True)

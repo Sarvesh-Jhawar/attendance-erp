@@ -69,14 +69,30 @@ public class LoginController {
             AttendanceService.AttendanceAndTimetableDTO dto;
             try {
                 dto = attendanceService.parseAttendanceAndTimetable(jsonOutput);
+                System.out.println("[DEBUG] Successfully parsed attendance and timetable DTO.");
+                System.out.println("[DEBUG] Attendance count: " + (dto.getAttendance() != null ? dto.getAttendance().size() : 0));
+                System.out.println("[DEBUG] Timetable count: " + (dto.getTodayTimetable() != null ? dto.getTodayTimetable().size() : 0));
             } catch (Exception e) {
                 System.out.println("[ERROR] Invalid data format from Python script: " + e.getMessage());
                 e.printStackTrace();
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("Invalid data format from Python script.");
+                    .body("Invalid data format from Python script: " + e.getMessage());
             }
 
-            System.out.println("[DEBUG] Successfully parsed attendance and timetable DTO.");
+            // Validate that we have at least some attendance data
+            if (dto.getAttendance() == null || dto.getAttendance().isEmpty()) {
+                System.out.println("[ERROR] No attendance data received from Python script.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("No attendance data received from Python script.");
+            }
+
+            // Log timetable status for debugging
+            if (dto.getTodayTimetable() == null || dto.getTodayTimetable().isEmpty()) {
+                System.out.println("[DEBUG] No timetable data - this is normal for holidays/weekends");
+            } else {
+                System.out.println("[DEBUG] Timetable data found with " + dto.getTodayTimetable().size() + " entries");
+            }
+
             System.out.println("[DEBUG] DTO sent to frontend: " + new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(dto));
             return ResponseEntity.ok(dto);
 
