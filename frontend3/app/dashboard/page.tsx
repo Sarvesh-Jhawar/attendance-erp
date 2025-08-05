@@ -50,15 +50,24 @@ export default function Dashboard() {
   const { toast } = useToast();
   // Remove showCalculatorDialog state
   // const [showCalculatorDialog, setShowCalculatorDialog] = useState(false)
-  const [showCalculatorTooltip, setShowCalculatorTooltip] = useState(false)
-  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
   const [todayTimetable, setTodayTimetable] = useState<{ period: string; subject: string }[]>([]);
   const [showPlanTodayNote, setShowPlanTodayNote] = useState(false);
+  const [datewiseAttendance, setDatewiseAttendance] = useState<DatewiseAttendanceEntry[]>([]);
+  const [datewiseFilter, setDatewiseFilter] = useState("last5");
+
+
+  // TypeScript interface for datewise attendance
+  interface DatewiseAttendanceEntry {
+    date: string;
+    periods: string[];
+  }
 
   useEffect(() => {
     const storedData = localStorage.getItem("attendanceData")
     const storedUsername = localStorage.getItem("bunk_username")
     const storedTimetable = localStorage.getItem("todayTimetable");
+    const storedDatewiseAttendance = localStorage.getItem("datewiseAttendance");
     
     // Safely parse timetable data
     if (storedTimetable) {
@@ -73,6 +82,21 @@ export default function Dashboard() {
       } catch (error) {
         console.error("Error parsing timetable:", error);
         setTodayTimetable([]);
+      }
+    }
+
+    // Safely parse datewise attendance data
+    if (storedDatewiseAttendance) {
+      try {
+        const parsedDatewiseAttendance = JSON.parse(storedDatewiseAttendance);
+        if (Array.isArray(parsedDatewiseAttendance)) {
+          setDatewiseAttendance(parsedDatewiseAttendance);
+        } else {
+          setDatewiseAttendance([]);
+        }
+      } catch (error) {
+        console.error("Error parsing datewise attendance:", error);
+        setDatewiseAttendance([]);
       }
     }
 
@@ -96,17 +120,11 @@ export default function Dashboard() {
     //   }
     // }
 
-    // Show one-time tooltip for Calculator tab
-    if (!localStorage.getItem("calculatorTooltipShown")) {
-      setShowCalculatorTooltip(true)
-      tooltipTimeoutRef.current = setTimeout(() => {
-        setShowCalculatorTooltip(false)
-        localStorage.setItem("calculatorTooltipShown", "true")
-      }, 12000) // 12 seconds
-    }
-    return () => {
-      if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current)
-    }
+
+
+
+
+
   }, [])
 
   useEffect(() => {
@@ -133,7 +151,7 @@ export default function Dashboard() {
   const getStatusBadge = (percentage: number) => {
     if (percentage >= 75) return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Safe</Badge>
     if (percentage >= 65)
-      return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Likely to be condonation</Badge>
+      return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Likely to be condonated</Badge>
     return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Likely to be detained</Badge>
   }
 
@@ -203,6 +221,30 @@ export default function Dashboard() {
     localStorage.clear()
     router.push("/")
   }
+
+  // Function to filter datewise attendance based on selected filter
+  const getFilteredDatewiseAttendance = () => {
+    if (!datewiseAttendance || datewiseAttendance.length === 0) return [];
+    
+    // Sort attendance data by date (most recent first)
+    const sortedAttendance = [...datewiseAttendance].sort((a, b) => {
+      const dateA = new Date(a.date.split('(')[0].trim());
+      const dateB = new Date(b.date.split('(')[0].trim());
+      return dateB.getTime() - dateA.getTime();
+    });
+    
+    switch (datewiseFilter) {
+      case "last5":
+        return sortedAttendance.slice(0, 5);
+      case "last10":
+        return sortedAttendance.slice(0, 10);
+      case "last20":
+        return sortedAttendance.slice(0, 20);
+      case "all":
+      default:
+        return sortedAttendance;
+    }
+  };
 
   const overallPercentage = calculateOverallAttendance()
 
@@ -377,57 +419,43 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="subjects" className="space-y-4 sm:space-y-6">
-          <TabsList className="bg-black/40 backdrop-blur-xl border-white/20 w-full sm:w-auto relative">
-            <TabsTrigger
-              value="subjects"
-              className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base"
-            >
-              Subjects
-            </TabsTrigger>
-            <div className="relative flex-1 sm:flex-none">
+          {/* Make tab navigation horizontally scrollable on mobile */}
+          <div className="w-full overflow-x-auto whitespace-nowrap py-1">
+            <TabsList className="bg-black/40 backdrop-blur-xl border-white/20 inline-flex w-max relative px-2">
               <TabsTrigger
-                value="calculator"
-                className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base flex items-center justify-center gap-2 relative"
+                value="subjects"
+                className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base"
               >
-                Calculator
-                {/* Badge */}
-                <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white animate-pulse shadow-lg select-none">
-                  Try this
+                Subjects
+              </TabsTrigger>
+              {/* Divider line */}
+              <div className="w-1 h-7 bg-white/80 mx-3 rounded-full inline-block"></div>
+                          <div className="relative">
+              <TabsTrigger
+                value="datewise"
+                className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base relative"
+              >
+                Date Wise
+                <span className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-1.5 py-0.5 rounded-full shadow-lg animate-pulse">
+                  NEW
                 </span>
               </TabsTrigger>
-              {/* Tooltip/Coach Mark */}
-              {showCalculatorTooltip && (
-                <div
-                  className="z-50 w-max max-w-xs text-black text-xs sm:text-sm rounded-lg px-3 py-2 shadow-lg border border-purple-500 animate-fade-in-up"
-                  style={{
-                    position: 'absolute',
-                    left: '100%',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: '#fff'
-                  }}
-                >
-                  <span className="block text-center">Try this feature! 🎯</span>
-                  {/* Arrow for desktop */}
-                  <div className="hidden sm:block absolute -left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-t border-l border-purple-500 rotate-45"
-                    style={{ background: '#fff' }}></div>
-                  {/* Arrow for mobile (below tab) */}
-                  <div className="block sm:hidden absolute left-1/2 -translate-x-1/2 -top-2 w-3 h-3 border-l border-t border-purple-500 rotate-45"
-                    style={{ background: '#fff' }}></div>
-                  <style>{`
-                    @media (max-width: 640px) {
-                      .z-50.w-max.max-w-xs.text-black {
-                        left: 50% !important;
-                        top: 100% !important;
-                        transform: translateX(-50%) !important;
-                        margin-top: 0.5rem !important;
-                      }
-                    }
-                  `}</style>
-                </div>
-              )}
+              
+
             </div>
-          </TabsList>
+              {/* Divider line */}
+              <div className="w-1 h-7 bg-white/80 mx-3 rounded-full inline-block"></div>
+              <div className="relative flex-1 sm:flex-none inline-block">
+                              <TabsTrigger
+                value="calculator"
+                className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base"
+              >
+                Calculator
+              </TabsTrigger>
+
+              </div>
+            </TabsList>
+          </div>
 
           <TabsContent value="subjects">
             <Card className="bg-black/40 backdrop-blur-xl border-white/20">
@@ -528,14 +556,98 @@ export default function Dashboard() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="datewise">
+            <Card className="bg-black/40 backdrop-blur-xl border-white/20">
+              <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
+                <div>
+                  <CardTitle className="text-white text-lg sm:text-xl">Date Wise Attendance</CardTitle>
+                  <CardDescription className="text-white/70 text-sm">
+                    Track your daily attendance across all periods
+                  </CardDescription>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="datewise-filter" className="text-white/90 text-sm">
+                    Filter:
+                  </Label>
+                  <Select value={datewiseFilter} onValueChange={setDatewiseFilter}>
+                    <SelectTrigger className="w-32 sm:w-40 bg-white/10 border-white/20 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                                         <SelectContent className="bg-black/80 backdrop-blur-xl border-white/20">
+                       <SelectItem value="last5" className="text-white">Last 5 Days</SelectItem>
+                       <SelectItem value="last10" className="text-white">Last 10 Days</SelectItem>
+                       <SelectItem value="last20" className="text-white">Last 20 Days</SelectItem>
+                       <SelectItem value="all" className="text-white">All</SelectItem>
+                     </SelectContent>
+                  </Select>
+                </div>
+              </CardHeader>
+              <CardContent className="px-2 sm:px-6">
+                {(() => {
+                  const filteredData = getFilteredDatewiseAttendance();
+                  return filteredData.length > 0 ? (
+                    <div className="overflow-x-auto">
+                                           <Table className="min-w-full border border-white/20">
+                       <TableHeader>
+                         <TableRow className="border-white/20 bg-white/5">
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">Date</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">P1</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">P2</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">P3</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">P4</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">P5</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 text-center">P6</TableHead>
+                         </TableRow>
+                       </TableHeader>
+                       <TableBody>
+                         {filteredData.map((item, index) => (
+                           <TableRow key={index} className="border-white/10 hover:bg-white/5">
+                             <TableCell className="text-white font-medium text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">
+                               {item.date}
+                             </TableCell>
+                             {item.periods.map((period, periodIndex) => (
+                               <TableCell key={periodIndex} className="text-center px-2 sm:px-4 border-r border-white/20 last:border-r-0">
+                                 <Badge 
+                                   className={`text-xs font-semibold w-6 h-6 flex items-center justify-center ${
+                                     period === 'P' 
+                                       ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                                       : period === 'A' 
+                                         ? 'bg-red-500/20 text-red-400 border-red-500/30'
+                                         : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                                   }`}
+                                 >
+                                   {period}
+                                 </Badge>
+                               </TableCell>
+                             ))}
+                           </TableRow>
+                         ))}
+                       </TableBody>
+                     </Table>
+                  </div>
+                                 ) : datewiseAttendance.length > 0 ? (
+                   <div className="text-center py-8">
+                     <div className="text-white/60 text-sm mb-2">📅</div>
+                     <div className="text-white/80 text-base font-medium">No data for selected filter</div>
+                     <div className="text-white/60 text-sm mt-1">Try selecting a different time period</div>
+                   </div>
+                 ) : (
+                   <div className="text-center py-8">
+                     <div className="text-white/60 text-sm mb-2">📅</div>
+                     <div className="text-white/80 text-base font-medium">No datewise attendance data available</div>
+                     <div className="text-white/60 text-sm mt-1">This data will be available when you log in</div>
+                   </div>
+                 );
+               })()}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="calculator">
             <div className="space-y-6">
               <Card className="bg-black/40 backdrop-blur-xl border-white/20">
                 <CardHeader>
                   <CardTitle className="text-white">Attendance Calculator</CardTitle>
-                  <CardDescription className="text-white/70">
-                    Calculate how many classes you can skip or need to attend
-                  </CardDescription>
                   <p className="bg-blue-600/80 text-white text-xs mt-2 px-3 py-2 rounded-lg font-semibold shadow-md flex items-center w-fit">
                     Use the
                     <span className="inline-block align-middle mx-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-info w-4 h-4 inline"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg></span>icon for more help.

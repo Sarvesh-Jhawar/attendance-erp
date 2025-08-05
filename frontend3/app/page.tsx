@@ -71,9 +71,12 @@ export default function LoginPage() {
       // Parse the response data
       const rawData = await response.json();
       console.log("Raw data received:", rawData);
+      console.log("Datewise attendance data:", rawData.datewiseAttendance);
+      console.log("Datewise attendance data (snake_case):", rawData.datewise_attendance);
       
       const attendanceArray = rawData.attendance || [];
       const timetableArray = rawData.todayTimetable || rawData.today_timetable || [];
+      const datewiseAttendanceArray = rawData.datewiseAttendance || rawData.datewise_attendance || [];
 
       // Validate timetable data - ensure it's an array and handle error objects
       let validTimetableArray = [];
@@ -88,6 +91,21 @@ export default function LoginPage() {
         // Fallback to empty array
         console.log("Timetable is null/undefined, using empty array");
         validTimetableArray = [];
+      }
+
+      // Validate datewise attendance data - ensure it's an array and handle error objects
+      let validDatewiseAttendanceArray = [];
+      if (Array.isArray(datewiseAttendanceArray)) {
+        validDatewiseAttendanceArray = datewiseAttendanceArray;
+        console.log("Valid datewise attendance array:", validDatewiseAttendanceArray);
+      } else if (datewiseAttendanceArray && typeof datewiseAttendanceArray === 'object' && datewiseAttendanceArray.error) {
+        // If it's an error object, use empty array
+        console.log("Datewise attendance error:", datewiseAttendanceArray.error);
+        validDatewiseAttendanceArray = [];
+      } else {
+        // Fallback to empty array
+        console.log("Datewise attendance is null/undefined, using empty array");
+        validDatewiseAttendanceArray = [];
       }
 
       // Transform attendance data as before
@@ -123,6 +141,7 @@ export default function LoginPage() {
       localStorage.setItem("loginSuccess", "true");
       localStorage.setItem("attendanceData", JSON.stringify(attendanceData));
       localStorage.setItem("todayTimetable", JSON.stringify(validTimetableArray));
+      localStorage.setItem("datewiseAttendance", JSON.stringify(validDatewiseAttendanceArray));
 
       // Navigate to dashboard
       router.push("/dashboard");

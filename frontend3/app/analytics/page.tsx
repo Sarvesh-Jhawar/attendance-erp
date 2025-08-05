@@ -77,7 +77,7 @@ export default function Analytics() {
 
   const getStatusBadge = (percentage: number) => {
     if (percentage >= 75) return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Safe</Badge>
-    if (percentage >= 65) return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Likely to be condonation</Badge>
+    if (percentage >= 65) return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Likely to be condonated</Badge>
     return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Likely to be detained</Badge>
   }
 
