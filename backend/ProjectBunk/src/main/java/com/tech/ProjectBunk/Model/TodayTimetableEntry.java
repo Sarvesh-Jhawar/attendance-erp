@@ -9,21 +9,25 @@ public class TodayTimetableEntry {
     @JsonProperty("subject")
     private String subject;
 
-    public TodayTimetableEntry() {}
+    public TodayTimetableEntry() {
+        // Initialize with safe defaults to prevent null pointer exceptions
+        this.period = "";
+        this.subject = "";
+    }
 
     public String getPeriod() {
-        return period;
+        return (period != null) ? period : "";
     }
 
     public void setPeriod(String period) {
-        this.period = period;
+        this.period = (period != null) ? period : "";
     }
 
     public String getSubject() {
-        return subject;
+        return (subject != null) ? subject : "";
     }
 
     public void setSubject(String subject) {
-        this.subject = subject;
+        this.subject = (subject != null) ? subject : "";
     }
 } 

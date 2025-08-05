@@ -39,6 +39,7 @@ public class LoginController {
         try {
             System.out.println("[DEBUG] Received rollNo: " + rollNo + ", password: " + password);
             ProcessBuilder pb = new ProcessBuilder("python3", "src/main/python/extractor.py", rollNo, password);
+            //pb.directory(new java.io.File("backend/ProjectBunk"));
             pb.redirectErrorStream(true);
             Process process = pb.start();
 

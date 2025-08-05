@@ -49,6 +49,39 @@ def extract_todays_timetable(soup):
         timetable.append({"period": period, "subject": subject})
     return timetable
 
+def extract_datewise_attendance(soup):
+    """Extract the Date wise Attendance table from the ERP HTML"""
+    datewise_table = soup.find("table", {"id": "ctl00_cpStud_grdDaywise"})
+    if not datewise_table:
+        return []
+    
+    rows = datewise_table.find_all("tr")[1:]  # Skip header row
+    datewise_attendance = []
+    
+    for row in rows:
+        cols = row.find_all("td")
+        if len(cols) < 7:  # Date + 6 periods
+            continue
+            
+        date = cols[0].get_text(strip=True)
+        periods = []
+        
+        # Extract periods 1-6 (columns 1-6)
+        for i in range(1, 7):
+            period_value = cols[i].get_text(strip=True)
+            # Handle empty cells or special characters
+            if not period_value or period_value == "-":
+                periods.append("-")
+            else:
+                periods.append(period_value)
+        
+        datewise_attendance.append({
+            "date": date,
+            "periods": periods
+        })
+    
+    return datewise_attendance
+
 try:
     # Initialize session
     session = requests.Session()
@@ -102,7 +135,12 @@ try:
 
     if mode == "timetable":
         timetable = extract_todays_timetable(soup_dashboard_final)
-        print(json.dumps({"attendance": [], "today_timetable": timetable}))
+        datewise_attendance = extract_datewise_attendance(soup_dashboard_final)
+        print(json.dumps({
+            "attendance": [], 
+            "today_timetable": timetable,
+            "datewise_attendance": datewise_attendance
+        }))
         sys.exit(0)
 
     # Extract attendance table (default)
@@ -128,7 +166,15 @@ try:
         attendance_list.append(data)
     # Also extract timetable for today
     timetable = extract_todays_timetable(soup_dashboard_final)
-    print(json.dumps({"attendance": attendance_list, "today_timetable": timetable}))
+    
+    # Extract datewise attendance
+    datewise_attendance = extract_datewise_attendance(soup_dashboard_final)
+    
+    print(json.dumps({
+        "attendance": attendance_list, 
+        "today_timetable": timetable,
+        "datewise_attendance": datewise_attendance
+    }))
 
 except Exception as e:
     print(json.dumps({"error": str(e)}))

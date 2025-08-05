@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tech.ProjectBunk.Model.SubjectAttendance;
 import com.tech.ProjectBunk.Model.TodayTimetableEntry;
+import com.tech.ProjectBunk.Model.DatewiseAttendanceEntry;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -16,9 +17,19 @@ public class AttendanceService {
 
     private static final double REQUIRED_PERCENTAGE = 75.0;
 
-    // ✅ Existing method
+    // ✅ Existing method with enhanced null safety
    public void calculateAllThresholds(List<SubjectAttendance> subjects) {
+    if (subjects == null) {
+        System.out.println("[WARNING] calculateAllThresholds called with null subjects list");
+        return;
+    }
+    
     for (SubjectAttendance subject : subjects) {
+        if (subject == null) {
+            System.out.println("[WARNING] Skipping null subject in calculateAllThresholds");
+            continue;
+        }
+        
         int held = subject.getHeld();
         int attended = subject.getAttended();
 
@@ -76,35 +87,111 @@ public class AttendanceService {
 }
 
 
-    // ✅ New method to parse JSON and calculate max bunks
+    // ✅ Enhanced method to parse JSON and calculate max bunks with null safety
     public List<SubjectAttendance> parseAndCalculate(String json) throws IOException {
-    ObjectMapper mapper = new ObjectMapper();
-    List<SubjectAttendance> subjects = mapper.readValue(json, new TypeReference<List<SubjectAttendance>>() {});
-    calculateAllThresholds(subjects);
-    return subjects;
-}
+        if (json == null || json.trim().isEmpty()) {
+            System.out.println("[ERROR] parseAndCalculate called with null or empty JSON");
+            throw new IllegalArgumentException("JSON input cannot be null or empty");
+        }
+        
+        ObjectMapper mapper = new ObjectMapper();
+        List<SubjectAttendance> subjects = mapper.readValue(json, new TypeReference<List<SubjectAttendance>>() {});
+        
+        if (subjects == null) {
+            System.out.println("[WARNING] Parsed subjects list is null, creating empty list");
+            subjects = new ArrayList<>();
+        }
+        
+        calculateAllThresholds(subjects);
+        return subjects;
+    }
 
-    // New DTO for combined response
+    // Enhanced DTO for combined response with null safety
     public static class AttendanceAndTimetableDTO {
         private List<SubjectAttendance> attendance;
         private List<TodayTimetableEntry> todayTimetable;
+        private List<DatewiseAttendanceEntry> datewiseAttendance;
 
-        public AttendanceAndTimetableDTO() {}
-        public AttendanceAndTimetableDTO(List<SubjectAttendance> attendance, List<TodayTimetableEntry> todayTimetable) {
-            this.attendance = attendance;
-            this.todayTimetable = todayTimetable;
+        public AttendanceAndTimetableDTO() {
+            // Initialize with safe defaults
+            this.attendance = new ArrayList<>();
+            this.todayTimetable = new ArrayList<>();
+            this.datewiseAttendance = new ArrayList<>();
         }
-        public List<SubjectAttendance> getAttendance() { return attendance; }
-        public void setAttendance(List<SubjectAttendance> attendance) { this.attendance = attendance; }
-        public List<TodayTimetableEntry> getTodayTimetable() { return todayTimetable; }
-        public void setTodayTimetable(List<TodayTimetableEntry> todayTimetable) { this.todayTimetable = todayTimetable; }
+        
+        public AttendanceAndTimetableDTO(List<SubjectAttendance> attendance, List<TodayTimetableEntry> todayTimetable, List<DatewiseAttendanceEntry> datewiseAttendance) {
+            this.attendance = (attendance != null) ? attendance : new ArrayList<>();
+            this.todayTimetable = (todayTimetable != null) ? todayTimetable : new ArrayList<>();
+            this.datewiseAttendance = (datewiseAttendance != null) ? datewiseAttendance : new ArrayList<>();
+        }
+        
+        public List<SubjectAttendance> getAttendance() { 
+            return (attendance != null) ? attendance : new ArrayList<>(); 
+        }
+        
+        public void setAttendance(List<SubjectAttendance> attendance) { 
+            this.attendance = (attendance != null) ? attendance : new ArrayList<>(); 
+        }
+        
+        public List<TodayTimetableEntry> getTodayTimetable() { 
+            return (todayTimetable != null) ? todayTimetable : new ArrayList<>(); 
+        }
+        
+        public void setTodayTimetable(List<TodayTimetableEntry> todayTimetable) { 
+            this.todayTimetable = (todayTimetable != null) ? todayTimetable : new ArrayList<>(); 
+        }
+        
+        public List<DatewiseAttendanceEntry> getDatewiseAttendance() { 
+            return (datewiseAttendance != null) ? datewiseAttendance : new ArrayList<>(); 
+        }
+        
+        public void setDatewiseAttendance(List<DatewiseAttendanceEntry> datewiseAttendance) { 
+            this.datewiseAttendance = (datewiseAttendance != null) ? datewiseAttendance : new ArrayList<>(); 
+        }
     }
 
-    // New method to parse new extractor output
+    // Enhanced method to parse new extractor output with comprehensive null safety
     public AttendanceAndTimetableDTO parseAttendanceAndTimetable(String json) throws IOException {
+        if (json == null || json.trim().isEmpty()) {
+            System.out.println("[ERROR] parseAttendanceAndTimetable called with null or empty JSON");
+            throw new IllegalArgumentException("JSON input cannot be null or empty");
+        }
+        
         ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> map = mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
-        List<SubjectAttendance> attendance = mapper.convertValue(map.get("attendance"), new TypeReference<List<SubjectAttendance>>() {});
+        Map<String, Object> map;
+        
+        try {
+            map = mapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+        } catch (Exception e) {
+            System.out.println("[ERROR] Failed to parse JSON: " + e.getMessage());
+            throw new IOException("Invalid JSON format: " + e.getMessage());
+        }
+        
+        if (map == null) {
+            System.out.println("[ERROR] Parsed map is null");
+            throw new IOException("Failed to parse JSON into map");
+        }
+        
+        // Handle attendance data safely
+        List<SubjectAttendance> attendance = new ArrayList<>();
+        Object attendanceData = map.get("attendance");
+        
+        System.out.println("[DEBUG] Raw attendance data: " + attendanceData);
+        
+        if (attendanceData != null && attendanceData instanceof List) {
+            try {
+                attendance = mapper.convertValue(attendanceData, new TypeReference<List<SubjectAttendance>>() {});
+                if (attendance == null) {
+                    attendance = new ArrayList<>();
+                }
+                System.out.println("[DEBUG] Successfully parsed attendance with " + attendance.size() + " entries");
+            } catch (Exception e) {
+                System.out.println("[DEBUG] Failed to parse attendance: " + e.getMessage());
+                attendance = new ArrayList<>();
+            }
+        } else {
+            System.out.println("[DEBUG] Attendance data is null or not a list");
+        }
         
         // Handle timetable data safely - it might be empty, null, or contain an error
         List<TodayTimetableEntry> todayTimetable = new ArrayList<>();
@@ -123,28 +210,77 @@ public class AttendanceService {
                     // It's a valid timetable array
                     try {
                         todayTimetable = mapper.convertValue(timetableData, new TypeReference<List<TodayTimetableEntry>>() {});
+                        if (todayTimetable == null) {
+                            todayTimetable = new ArrayList<>();
+                        }
                         System.out.println("[DEBUG] Successfully parsed timetable with " + todayTimetable.size() + " entries");
                     } catch (Exception e) {
                         System.out.println("[DEBUG] Failed to parse timetable: " + e.getMessage());
                         // Return empty list on parsing error
+                        todayTimetable = new ArrayList<>();
                     }
                 }
             } else if (timetableData instanceof List) {
                 // It's already a list
                 try {
                     todayTimetable = mapper.convertValue(timetableData, new TypeReference<List<TodayTimetableEntry>>() {});
+                    if (todayTimetable == null) {
+                        todayTimetable = new ArrayList<>();
+                    }
                     System.out.println("[DEBUG] Successfully parsed timetable list with " + todayTimetable.size() + " entries");
                 } catch (Exception e) {
                     System.out.println("[DEBUG] Failed to parse timetable list: " + e.getMessage());
                     // Return empty list on parsing error
+                    todayTimetable = new ArrayList<>();
                 }
             }
         } else {
             System.out.println("[DEBUG] Timetable data is null - this is normal for holidays/weekends");
         }
         
-        calculateAllThresholds(attendance);
-        return new AttendanceAndTimetableDTO(attendance, todayTimetable);
+        // Handle datewise attendance data safely with enhanced null checking
+        List<DatewiseAttendanceEntry> datewiseAttendance = new ArrayList<>();
+        Object datewiseData = map.get("datewise_attendance");
+        
+        System.out.println("[DEBUG] Raw datewise attendance data: " + datewiseData);
+        
+        if (datewiseData != null && datewiseData instanceof List) {
+            try {
+                datewiseAttendance = mapper.convertValue(datewiseData, new TypeReference<List<DatewiseAttendanceEntry>>() {});
+                if (datewiseAttendance == null) {
+                    datewiseAttendance = new ArrayList<>();
+                } else {
+                    // Additional null safety for individual entries
+                    for (DatewiseAttendanceEntry entry : datewiseAttendance) {
+                        if (entry != null) {
+                            // Ensure the entry has safe values
+                            if (entry.getDate() == null) {
+                                entry.setDate("");
+                            }
+                            if (entry.getPeriods() == null) {
+                                entry.setPeriods(new ArrayList<>());
+                            }
+                        }
+                    }
+                }
+                System.out.println("[DEBUG] Successfully parsed datewise attendance with " + datewiseAttendance.size() + " entries");
+            } catch (Exception e) {
+                System.out.println("[DEBUG] Failed to parse datewise attendance: " + e.getMessage());
+                // Return empty list on parsing error
+                datewiseAttendance = new ArrayList<>();
+            }
+        } else {
+            System.out.println("[DEBUG] Datewise attendance data is null or not a list");
+        }
+        
+        // Calculate thresholds only if we have valid attendance data
+        if (!attendance.isEmpty()) {
+            calculateAllThresholds(attendance);
+        } else {
+            System.out.println("[WARNING] No attendance data available for threshold calculation");
+        }
+        
+        return new AttendanceAndTimetableDTO(attendance, todayTimetable, datewiseAttendance);
     }
 
 }
