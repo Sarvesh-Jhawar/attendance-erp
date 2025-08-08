@@ -207,6 +207,21 @@ export default function LoginPage() {
               <CardDescription className="text-blue-300 text-base sm:text-lg">
                 Track Your Academic Attendance
               </CardDescription>
+              
+                             {/* Glassmorphism search accessibility note with shimmer effect */}
+               <div className="mt-4 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl relative overflow-hidden shadow-2xl">
+                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-purple-400/20 rounded-xl"></div>
+                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-xl"></div>
+                 
+                 {/* Shimmer effect - diagonal light sweep */}
+                 <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full animate-shimmer"></div>
+                 
+                                   <div className="relative z-10 flex items-center justify-center">
+                    <p className="text-white/90 text-xs sm:text-sm font-medium text-center drop-shadow-sm">
+                      💡 <span className="font-semibold text-cyan-300">Tip:</span> Search "CBIT Attendance Analyzer" on any browser!
+                    </p>
+                  </div>
+               </div>
             </CardHeader>
             <CardContent className="px-4 sm:px-6">
               <form onSubmit={handleSubmit} className="space-y-6">
