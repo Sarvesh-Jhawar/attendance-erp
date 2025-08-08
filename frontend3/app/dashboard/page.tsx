@@ -326,7 +326,7 @@ export default function Dashboard() {
                         Plan Your Attendance →
                       </Button>
                       <span className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-1.5 py-0.5 rounded-full shadow-lg animate-pulse">
-                        NEW
+                        CLICK ME
                       </span>
                     </div>
                   </div>

@@ -4,8 +4,9 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, CheckCircle } from "lucide-react"
+import { ArrowLeft, CheckCircle, Info } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 
 interface AttendanceData {
   sn: number
@@ -284,7 +285,7 @@ export default function PlanToday() {
                 Back
               </Button>
               <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Plan Our Today
+                Plan Your Today
               </h1>
             </div>
           </div>
@@ -300,7 +301,33 @@ export default function PlanToday() {
         </div>
         <Card className="bg-black/40 backdrop-blur-xl border-white/20">
           <CardHeader>
-            <CardTitle className="text-white text-xl mb-2">Plan Your Attendance Today</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-white text-xl mb-2">Plan Your Attendance Today</CardTitle>
+              {/* Highlighted info icon button */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    className="ml-2 flex items-center justify-center w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 via-blue-500 to-cyan-400 hover:from-purple-600 hover:to-blue-600 text-white shadow-lg border-0 ring-2 ring-blue-300/60 transition-all focus:outline-none focus:ring-4 focus:ring-blue-400/70 animate-pulse"
+                    aria-label="Info"
+                    style={{
+                      boxShadow: "0 2px 16px 0 #6366f1aa, 0 1.5px 8px 0 #06b6d4aa"
+                    }}
+                  >
+                    <Info className="w-5 h-5" strokeWidth={2.3} />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 text-sm">
+                  <div className="font-semibold mb-1">How does this work?</div>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li>Select the periods you <b>plan to attend</b> today.</li>
+                    <li>Unselected periods will be marked as <b>absent</b>.</li>
+                    <li>If a period is already marked <b>Present</b> or <b>Absent</b>, you can't change it.</li>
+                    <li>Click <b>Submit</b> to see how your attendance percentage will change.</li>
+                  </ul>
+                </PopoverContent>
+              </Popover>
+            </div>
             <CardDescription className="text-white/80 text-sm leading-relaxed">
               Select the periods you plan to attend. Unselected periods will be marked as absent.
             </CardDescription>
@@ -314,13 +341,13 @@ export default function PlanToday() {
                       <table className="min-w-full divide-y divide-white/10">
                         <thead className="bg-white/10">
                           <tr>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-white/90 uppercase tracking-wider sticky left-0 bg-white/10 z-10">
+                            <th className="px-3 py-3 text-left text-xs font-medium text-white/90 uppercase tracking-wider sticky left-0 bg-white/10 z-10 border-r border-white/10">
                               Select
                             </th>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-white/90 uppercase tracking-wider">
+                            <th className="px-3 py-3 text-left text-xs font-medium text-white/90 uppercase tracking-wider border-r border-white/10">
                               Period
                             </th>
-                            <th className="px-3 py-3 text-left text-xs font-medium text-white/90 uppercase tracking-wider">
+                            <th className="px-3 py-3 text-left text-xs font-medium text-white/90 uppercase tracking-wider border-r border-white/10">
                               Subject
                             </th>
                             <th className="px-3 py-3 text-center text-xs font-medium text-white/90 uppercase tracking-wider">
@@ -328,39 +355,39 @@ export default function PlanToday() {
                             </th>
                           </tr>
                         </thead>
-                        <tbody className="bg-transparent divide-y divide-white/10">
-                                                     {periodPlans.map((plan, idx) => (
-                             <tr 
-                               key={`${plan.period}-${plan.subject}`} 
-                               className="hover:bg-white/5 transition-colors cursor-pointer"
-                               onClick={() => !plan.isLocked && handlePeriodToggle(idx, !plan.willAttend)}
-                             >
-                                                               <td className="px-3 py-3 whitespace-nowrap sticky left-0 z-10">
-                                  <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                    <Checkbox
-                                      checked={plan.willAttend}
-                                      onCheckedChange={checked => handlePeriodToggle(idx, checked as boolean)}
-                                      className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 border-white/60 bg-white/10 hover:bg-white/20 data-[state=unchecked]:bg-white/20 data-[state=unchecked]:border-white/60 disabled:opacity-50 disabled:cursor-not-allowed"
-                                      disabled={plan.isLocked}
-                                    />
-                                    {plan.isLocked && (
-                                      <span className="text-xs text-yellow-400 font-medium">
-                                        {plan.attendanceStatus === 'P' ? '✓ Present' : '✗ Absent'}
-                                      </span>
-                                    )}
-                                  </div>
-                                </td>
-                               <td className="px-3 py-3 whitespace-nowrap">
-                                 <span className="font-semibold text-blue-300 text-sm">{plan.period}</span>
-                               </td>
-                               <td className="px-3 py-3 whitespace-nowrap">
-                                 <span className="text-white text-sm">{plan.subject}</span>
-                               </td>
-                               <td className="px-3 py-3 whitespace-nowrap text-center">
-                                 <span className="text-white text-sm">{plan.originalPercentage.toFixed(1)}%</span>
-                               </td>
-                             </tr>
-                           ))}
+                        <tbody className="bg-transparent">
+                          {periodPlans.map((plan, idx) => (
+                            <tr
+                              key={`${plan.period}-${plan.subject}`}
+                              className={`hover:bg-white/5 transition-colors cursor-pointer border-b border-white/10 ${idx === periodPlans.length - 1 ? '' : ''}`}
+                              onClick={() => !plan.isLocked && handlePeriodToggle(idx, !plan.willAttend)}
+                            >
+                              <td className="px-3 py-3 whitespace-nowrap sticky left-0 z-10 border-r border-white/10 bg-black/40">
+                                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                                  <Checkbox
+                                    checked={plan.willAttend}
+                                    onCheckedChange={checked => handlePeriodToggle(idx, checked as boolean)}
+                                    className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 border-white/60 bg-white/10 hover:bg-white/20 data-[state=unchecked]:bg-white/20 data-[state=unchecked]:border-white/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    disabled={plan.isLocked}
+                                  />
+                                  {plan.isLocked && (
+                                    <span className="text-xs text-yellow-400 font-medium">
+                                      {plan.attendanceStatus === 'P' ? '✓ Present' : '✗ Absent'}
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-3 py-3 whitespace-nowrap border-r border-white/10">
+                                <span className="font-semibold text-blue-300 text-sm">{plan.period}</span>
+                              </td>
+                              <td className="px-3 py-3 whitespace-nowrap border-r border-white/10">
+                                <span className="text-white text-sm">{plan.subject}</span>
+                              </td>
+                              <td className="px-3 py-3 whitespace-nowrap text-center">
+                                <span className="text-white text-sm">{plan.originalPercentage.toFixed(1)}%</span>
+                              </td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
@@ -384,20 +411,45 @@ export default function PlanToday() {
             {/* Results shown under submit button */}
             {showResults && (
               <div id="results-section" className="mt-6">
-                <h2 className="text-white text-lg font-semibold mb-4">Attendance Change</h2>
+                <h2 className="text-white text-lg font-semibold mb-4 flex items-center gap-2">
+                  Attendance Change
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        className="ml-1 flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-400 hover:from-blue-600 hover:to-purple-600 text-white shadow border-0 transition-all focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        aria-label="Info"
+                        style={{
+                          boxShadow: "0 2px 8px 0 #6366f1aa, 0 1.5px 4px 0 #06b6d4aa"
+                        }}
+                      >
+                        <Info className="w-4 h-4" strokeWidth={2.2} />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 text-sm">
+                      <div className="font-semibold mb-1">What does this table show?</div>
+                      <ul className="list-disc pl-5 space-y-1">
+                        <li><b>Current %</b>: Your attendance percentage before today's plan.</li>
+                        <li><b>After %</b>: Your attendance percentage if you follow this plan.</li>
+                        <li><b>Change</b>: How much your attendance will increase or decrease.</li>
+                        <li>This helps you see the impact of your choices before submitting.</li>
+                      </ul>
+                    </PopoverContent>
+                  </Popover>
+                </h2>
                 <div className="overflow-x-auto -mx-4 sm:mx-0">
                   <div className="inline-block min-w-full align-middle">
                     <div className="overflow-hidden border border-white/20 rounded-lg">
                       <table className="min-w-full divide-y divide-white/10">
                         <thead className="bg-white/10">
                           <tr>
-                            <th className="px-3 py-2 text-left text-xs font-medium text-white/90 uppercase tracking-wider">
+                            <th className="px-3 py-2 text-left text-xs font-medium text-white/90 uppercase tracking-wider border-r border-white/10">
                               Subject
                             </th>
-                            <th className="px-3 py-2 text-center text-xs font-medium text-white/90 uppercase tracking-wider">
+                            <th className="px-3 py-2 text-center text-xs font-medium text-white/90 uppercase tracking-wider border-r border-white/10">
                               Current %
                             </th>
-                            <th className="px-3 py-2 text-center text-xs font-medium text-white/90 uppercase tracking-wider">
+                            <th className="px-3 py-2 text-center text-xs font-medium text-white/90 uppercase tracking-wider border-r border-white/10">
                               After %
                             </th>
                             <th className="px-3 py-2 text-center text-xs font-medium text-white/90 uppercase tracking-wider">
@@ -405,44 +457,59 @@ export default function PlanToday() {
                             </th>
                           </tr>
                         </thead>
-                                                 <tbody className="bg-transparent divide-y divide-white/10">
-                           {(() => {
-                             // Group by subject to show each subject only once
-                             const subjectGroups = new Map<string, PeriodPlan[]>()
-                             periodPlans.forEach(plan => {
-                               const subjectKey = plan.subject
-                               if (!subjectGroups.has(subjectKey)) {
-                                 subjectGroups.set(subjectKey, [])
-                               }
-                               subjectGroups.get(subjectKey)!.push(plan)
-                             })
-                             
-                             return Array.from(subjectGroups.entries()).map(([subject, plans]) => {
-                               // Use the first plan's data for display (they should all be the same for the same subject)
-                               const firstPlan = plans[0]
-                               const shortForm = firstPlan.subject.split(':')[0].trim()
-                               
-                               return (
-                                 <tr key={subject} className="hover:bg-white/5 transition-colors">
-                                   <td className="px-3 py-2 whitespace-nowrap">
-                                     <span className="text-white text-sm font-medium">{shortForm}</span>
-                                   </td>
-                                   <td className="px-3 py-2 whitespace-nowrap text-center">
-                                     <span className="text-white text-sm">{firstPlan.originalPercentage.toFixed(1)}%</span>
-                                   </td>
-                                   <td className="px-3 py-2 whitespace-nowrap text-center">
-                                     <span className="text-white text-sm">{firstPlan.newPercentage.toFixed(1)}%</span>
-                                   </td>
-                                   <td className="px-3 py-2 whitespace-nowrap text-center">
-                                     <span className={`text-sm font-medium ${firstPlan.change === 0 ? 'text-white' : firstPlan.change > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                       {firstPlan.change > 0 ? '+' : ''}{firstPlan.change.toFixed(1)}%
-                                     </span>
-                                   </td>
-                                 </tr>
-                               )
-                             })
-                           })()}
-                         </tbody>
+                        <tbody className="bg-transparent">
+                          {(() => {
+                            // Group by subject to show each subject only once
+                            const subjectGroups = new Map<string, PeriodPlan[]>()
+                            periodPlans.forEach(plan => {
+                              const subjectKey = plan.subject
+                              if (!subjectGroups.has(subjectKey)) {
+                                subjectGroups.set(subjectKey, [])
+                              }
+                              subjectGroups.get(subjectKey)!.push(plan)
+                            })
+
+                            return Array.from(subjectGroups.entries()).map(([subject, plans], idx, arr) => {
+                              // Use the first plan's data for display (they should all be the same for the same subject)
+                              const firstPlan = plans[0]
+                              const shortForm = firstPlan.subject.split(':')[0].trim()
+
+                              return (
+                                <tr
+                                  key={subject}
+                                  className={`hover:bg-white/5 transition-colors border-b border-white/10 ${idx === arr.length - 1 ? '' : ''}`}
+                                >
+                                  <td className="px-3 py-2 whitespace-nowrap border-r border-white/10">
+                                    <span className="text-white text-sm font-medium">{shortForm}</span>
+                                  </td>
+                                  <td className="px-3 py-2 whitespace-nowrap text-center border-r border-white/10">
+                                    <span className="text-white text-sm">{firstPlan.originalPercentage.toFixed(1)}%</span>
+                                  </td>
+                                  <td className="px-3 py-2 whitespace-nowrap text-center border-r border-white/10">
+                                    <span
+                                      className={`text-sm ${
+                                        firstPlan.change > 0
+                                          ? 'text-green-400 font-semibold'
+                                          : firstPlan.change < 0
+                                          ? 'text-red-400 font-semibold'
+                                          : firstPlan.willAttend && !firstPlan.isLocked
+                                          ? 'text-green-400 font-semibold'
+                                          : 'text-white'
+                                      }`}
+                                    >
+                                      {firstPlan.newPercentage.toFixed(1)}%
+                                    </span>
+                                  </td>
+                                  <td className="px-3 py-2 whitespace-nowrap text-center">
+                                    <span className={`text-sm font-medium ${firstPlan.change === 0 ? 'text-white' : firstPlan.change > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                      {firstPlan.change > 0 ? '+' : ''}{firstPlan.change.toFixed(1)}%
+                                    </span>
+                                  </td>
+                                </tr>
+                              )
+                            })
+                          })()}
+                        </tbody>
                       </table>
                     </div>
                   </div>
