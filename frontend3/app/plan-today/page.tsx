@@ -39,6 +39,7 @@ export default function PlanToday() {
   const [showResults, setShowResults] = useState(false)
   const [overallBefore, setOverallBefore] = useState(0)
   const [overallAfter, setOverallAfter] = useState(0)
+  const [selectAll, setSelectAll] = useState(false);
   const router = useRouter()
 
   useEffect(() => {
@@ -268,6 +269,17 @@ export default function PlanToday() {
   // Check if all periods are locked
   const allPeriodsLocked = periodPlans.length > 0 && periodPlans.every(plan => plan.isLocked)
 
+  // Add this effect after your other hooks
+  useEffect(() => {
+    // Only consider unlocked periods
+    const unlocked = periodPlans.filter(plan => !plan.isLocked);
+    if (unlocked.length === 0) {
+      setSelectAll(false);
+    } else {
+      setSelectAll(unlocked.every(plan => plan.willAttend));
+    }
+  }, [periodPlans]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Header */}
@@ -293,12 +305,7 @@ export default function PlanToday() {
       </div>
 
       <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-8 py-8">
-        {/* Glowing testing note */}
-        <div className="mb-6">
-          <div className="bg-gradient-to-r from-blue-700/80 via-purple-700/80 to-slate-800/80 text-white text-xs sm:text-sm rounded-lg px-4 py-2 font-semibold shadow-md border border-white/10" style={{ boxShadow: '0 0 8px 2px #1e40af55, 0 0 16px 4px #a21caf55' }}>
-            ⚠️ This feature is still <span className="font-bold">under testing</span>.
-          </div>
-        </div>
+       
         <Card className="bg-black/40 backdrop-blur-xl border-white/20">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -334,6 +341,32 @@ export default function PlanToday() {
           </CardHeader>
           <CardContent>
             <form onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
+              {/* Select All Checkbox */}
+              <div className="flex items-center mb-4">
+                <Checkbox
+                  id="select-all-checkbox"
+                  checked={selectAll}
+                  onCheckedChange={checked => {
+                    setSelectAll(checked as boolean);
+                    setPeriodPlans(prev =>
+                      prev.map(plan =>
+                        plan.isLocked ? plan : { ...plan, willAttend: checked as boolean }
+                      )
+                    );
+                    setShowResults(false);
+                  }}
+                  className="data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500 border-white/60 bg-white/10 hover:bg-white/20 data-[state=unchecked]:bg-white/20 data-[state=unchecked]:border-white/60 disabled:opacity-50 disabled:cursor-not-allowed mr-2"
+                  disabled={periodPlans.length === 0 || periodPlans.every(plan => plan.isLocked)}
+                />
+                <label
+                  htmlFor="select-all-checkbox"
+                  className="text-base font-medium text-white select-none cursor-pointer"
+                  tabIndex={0}
+                  style={{ userSelect: "none" }}
+                >
+                  Select All
+                </label>
+              </div>
               <div className="mb-6">
                 <div className="overflow-x-auto -mx-4 sm:mx-0">
                   <div className="inline-block min-w-full align-middle">
@@ -514,16 +547,16 @@ export default function PlanToday() {
                     </div>
                   </div>
                 </div>
-                                 <div className="mt-6 text-center">
-                   <div className="text-white text-base font-semibold mb-1">Overall Attendance</div>
-                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                     <div className="text-white/80">Before: <span className="font-bold">{overallBefore.toFixed(2)}%</span></div>
-                     <div className="text-white/80">After: <span className={`font-bold ${overallAfter > overallBefore ? 'text-green-400' : overallAfter < overallBefore ? 'text-red-400' : 'text-white'}`}>{overallAfter.toFixed(2)}%</span></div>
-                     <div className={overallAfter - overallBefore === 0 ? 'text-white font-bold' : (overallAfter - overallBefore > 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold')}>
-                       Change: {overallAfter - overallBefore > 0 ? '+' : ''}{(overallAfter - overallBefore).toFixed(2)}%
-                     </div>
-                   </div>
-                 </div>
+                <div className="mt-6 text-center">
+      <div className="text-white text-base font-semibold mb-1">Overall Attendance</div>
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="text-white/80">Before: <span className="font-bold">{overallBefore.toFixed(2)}%</span></div>
+        <div className="text-white/80">After: <span className={`font-bold ${overallAfter > overallBefore ? 'text-green-400' : overallAfter < overallBefore ? 'text-red-400' : 'text-white'}`}>{overallAfter.toFixed(2)}%</span></div>
+        <div className={overallAfter - overallBefore === 0 ? 'text-white font-bold' : (overallAfter - overallBefore > 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold')}>
+          Change: {overallAfter - overallBefore > 0 ? '+' : ''}{(overallAfter - overallBefore).toFixed(2)}%
+        </div>
+      </div>
+    </div>
               </div>
             )}
           </CardContent>

@@ -299,7 +299,7 @@ export default function Dashboard() {
         {/* Themed ERP data note */}
         <div className="mb-4">
           <div className="bg-gradient-to-r from-blue-700/80 via-purple-700/80 to-slate-800/80 text-white text-xs sm:text-sm rounded-lg px-4 py-2 font-semibold shadow-md border border-white/10">
-            Note: All calculations are based on the latest data of your ERP portal.
+            Note: All calculations are based on the latest data of your ERP portal. <span className="text-white/80">Always login to get the updated data.</span>
           </div>
         </div>
         {/* Welcome Message */}
@@ -326,7 +326,7 @@ export default function Dashboard() {
                         Plan Your Attendance →
                       </Button>
                       <span className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-1.5 py-0.5 rounded-full shadow-lg animate-pulse">
-                        CLICK ME
+                        NEW
                       </span>
                     </div>
                   </div>
@@ -449,9 +449,6 @@ export default function Dashboard() {
                 className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base relative"
               >
                 Date Wise
-                <span className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-1.5 py-0.5 rounded-full shadow-lg animate-pulse">
-                  NEW
-                </span>
               </TabsTrigger>
               
 
