@@ -691,13 +691,13 @@ export default function Dashboard() {
 
                   {/* --- Summary Table for Selected Subject/Overall --- */}
                   <div className="my-4">
-  <div className="overflow-x-auto rounded-lg">
-    <Table className="min-w-[340px] border border-white/20 rounded-lg overflow-hidden">
+  <div className="overflow-x-auto">
+    <Table className="min-w-[340px] border border-white/70 overflow-hidden">
       <TableHeader>
-        <TableRow className="bg-white/5 border-white/20">
-          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap w-[80px]">Selected</TableHead>
-          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap text-center w-[90px]">Attendance %</TableHead>
-          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap text-center w-[70px]">Held</TableHead>
+        <TableRow className="bg-white/10 border-b border-white/70">
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap w-[80px]">Selected</TableHead>
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[90px]">Attendance %</TableHead>
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[70px]">Held</TableHead>
           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap text-center w-[90px]">Attended</TableHead>
         </TableRow>
       </TableHeader>
@@ -708,16 +708,16 @@ export default function Dashboard() {
             ? { subject: "Overall", percentage: overallPercentage, held: data.held, attended: data.attended }
             : attendanceData[Number.parseInt(selectedSubject)];
           return (
-            <TableRow className="border-white/10">
-              <TableCell className="text-white font-medium text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap w-[80px]">
+            <TableRow className="border-b border-white/70">
+              <TableCell className="text-white font-medium text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap w-[80px]">
                 {selectedSubject === "overall"
                   ? "Overall"
                   : selectedItem?.subject?.split(":")[0] ?? ""}
               </TableCell>
-              <TableCell className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap text-center w-[90px] ${selectedItem?.held === 0 && selectedItem?.attended === 0 ? 'text-white/60' : getStatusColor(selectedItem?.percentage ?? 0)}`}>
+              <TableCell className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[90px] ${selectedItem?.held === 0 && selectedItem?.attended === 0 ? 'text-white/60' : getStatusColor(selectedItem?.percentage ?? 0)}`}>
                 {selectedItem?.held === 0 && selectedItem?.attended === 0 ? "0%" : `${(selectedItem?.percentage ?? overallPercentage).toFixed(1)}%`}
               </TableCell>
-              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap text-center w-[70px]">{selectedItem?.held ?? 0}</TableCell>
+              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[70px]">{selectedItem?.held ?? 0}</TableCell>
               <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap text-center w-[90px]">{selectedItem?.attended ?? 0}</TableCell>
             </TableRow>
           );
@@ -725,7 +725,7 @@ export default function Dashboard() {
       </TableBody>
     </Table>
   </div>
-                  </div>
+</div>
                   {/* --- End Summary Table --- */}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
