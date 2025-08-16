@@ -503,7 +503,7 @@ export default function Dashboard() {
 
                 {/* Mobile-optimized table */}
                 <div className="overflow-x-auto">
-                  <Table className="min-w-full">
+                  <Table className="min-w-full border border-white/20 rounded-lg overflow-hidden">
                     <TableHeader>
                       <TableRow className="border-white/20">
                         <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4">S/N</TableHead>
@@ -597,7 +597,7 @@ export default function Dashboard() {
                   const filteredData = getFilteredDatewiseAttendance();
                   return filteredData.length > 0 ? (
                     <div className="overflow-x-auto">
-                                           <Table className="min-w-full border border-white/20">
+                                           <Table className="min-w-full border border-white/20 rounded-lg overflow-hidden">
                        <TableHeader>
                          <TableRow className="border-white/20 bg-white/5">
                            <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">Date</TableHead>
@@ -688,6 +688,45 @@ export default function Dashboard() {
                       ))}
                     </SelectContent>
                   </Select>
+
+                  {/* --- Summary Table for Selected Subject/Overall --- */}
+                  <div className="my-4">
+  <div className="overflow-x-auto rounded-lg">
+    <Table className="min-w-[340px] border border-white/20 rounded-lg overflow-hidden">
+      <TableHeader>
+        <TableRow className="bg-white/5 border-white/20">
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap w-[80px]">Selected</TableHead>
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap text-center w-[90px]">Attendance %</TableHead>
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap text-center w-[70px]">Held</TableHead>
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap text-center w-[90px]">Attended</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {(() => {
+          const data = getSelectedData();
+          const selectedItem = selectedSubject === "overall"
+            ? { subject: "Overall", percentage: overallPercentage, held: data.held, attended: data.attended }
+            : attendanceData[Number.parseInt(selectedSubject)];
+          return (
+            <TableRow className="border-white/10">
+              <TableCell className="text-white font-medium text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap w-[80px]">
+                {selectedSubject === "overall"
+                  ? "Overall"
+                  : selectedItem?.subject?.split(":")[0] ?? ""}
+              </TableCell>
+              <TableCell className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap text-center w-[90px] ${selectedItem?.held === 0 && selectedItem?.attended === 0 ? 'text-white/60' : getStatusColor(selectedItem?.percentage ?? 0)}`}>
+                {selectedItem?.held === 0 && selectedItem?.attended === 0 ? "0%" : `${(selectedItem?.percentage ?? overallPercentage).toFixed(1)}%`}
+              </TableCell>
+              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 whitespace-nowrap text-center w-[70px]">{selectedItem?.held ?? 0}</TableCell>
+              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap text-center w-[90px]">{selectedItem?.attended ?? 0}</TableCell>
+            </TableRow>
+          );
+        })()}
+      </TableBody>
+    </Table>
+  </div>
+                  </div>
+                  {/* --- End Summary Table --- */}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card className="bg-green-500/10 border-green-500/20">
