@@ -297,9 +297,17 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         {/* Themed ERP data note */}
+        <div className="mb-2">
+          <div className="bg-gradient-to-r from-blue-700/80 via-purple-700/80 to-slate-800/80 text-white text-xs sm:text-sm rounded-xl px-4 py-2 font-semibold shadow-md border border-white/10 inline-block text-left">
+            Note: All calculations are based on the latest data of your ERP portal.
+          </div>
+        </div>
+        {/* Hint block with bulb icon, left aligned and compact */}
         <div className="mb-4">
-          <div className="bg-gradient-to-r from-blue-700/80 via-purple-700/80 to-slate-800/80 text-white text-xs sm:text-sm rounded-lg px-4 py-2 font-semibold shadow-md border border-white/10">
-            Note: All calculations are based on the latest data of your ERP portal. <span className="text-white/80">Always login to get the updated data.</span>
+          <div className="bg-gradient-to-r from-blue-900/70 to-purple-700/70 rounded-xl px-4 py-2 text-white text-left font-semibold text-sm shadow border border-white/20 inline-block">
+            <span className="mr-2">💡</span>
+            <span className="text-[#5eead4] font-bold">Tip:</span>
+            <span className="ml-1 text-white">Always login to get the updated data.</span>
           </div>
         </div>
         {/* Welcome Message */}
