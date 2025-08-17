@@ -15,17 +15,24 @@ The **Attendance Analyzer** provides CBIT students with a smarter and more intui
 ---
 
 ## ✨ Key Features
-- 🎛️ **Personalized Dashboard**  
-  A clean, user-friendly overview of your overall attendance.
+- 🎛️ **Personalized Dashboard** A clean, user-friendly overview of your overall attendance.
 
-- 📊 **Subject-wise Analytics**  
-  Clear breakdown of attendance percentages for each subject.
+- 📊 **Subject-wise Analytics** Clear breakdown of attendance percentages for each subject.
 
-- 🧮 **Attendance Calculator**  
-  Predict how many classes you can afford to miss or need to attend to meet your target attendance percentage.
+- 🧮 **Attendance Calculator** Predict how many classes you can afford to miss or need to attend to meet your target attendance percentage.
 
-- 📱 **Responsive Design**  
-  Fully accessible and user-friendly on both desktop and mobile devices.
+- 📱 **Responsive Design** Fully accessible and user-friendly on both desktop and mobile devices.
+
+---
+
+## 📈 Early Analytics (First 28 Days)
+
+As of August 17, 2025, the Attendance Analyzer has shown promising initial engagement:
+- **Visitors:** 7,392
+- **Page Views:** 31,246
+- **Bounce Rate:** 28%
+
+These early metrics demonstrate a strong initial interest and user retention for the application.
 
 ---
 
@@ -56,7 +63,7 @@ The **Attendance Analyzer** provides CBIT students with a smarter and more intui
 | Role         | Name        | LinkedIn                                       |
 |--------------|-------------|-----------------------------------------------|
 | **Frontend** | K.H. Harsh  | [LinkedIn – K.H. Harsh](https://www.linkedin.com/in/khharsh/) |
-| **Backend**  | Sarvesh Jhawar | [LinkedIn – Sarvesh Jhawar](https://www.linkedin.com/in/sarvesh-jhawar-515bb42b2) |
+| **Backend** | Sarvesh Jhawar | [LinkedIn – Sarvesh Jhawar](https://www.linkedin.com/in/sarvesh-jhawar-515bb42b2) |
 
 ---
 
@@ -69,4 +76,4 @@ Feel free to raise issues, suggest features, or share improvements via **GitHub 
 ---
 
 ## 🏷 Tags
-`#AttendanceTracker` `#ERP` `#CBIT` `#StudentLife` `#WebDevelopment` `#ReactJS` `#SpringBoot` `#Java` `#Analytics` `#EdTech`  
+`#AttendanceTracker` `#ERP` `#CBIT` `#StudentLife` `#WebDevelopment` `#ReactJS` `#SpringBoot` `#Java` `#Analytics` `#EdTech`
