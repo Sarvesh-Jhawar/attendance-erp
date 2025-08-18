@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { User, LogOut, BarChart3, Info, TrendingUp, TrendingDown, Calendar, BookOpen } from "lucide-react"
+import { User, LogOut, BarChart3, Info, TrendingUp, TrendingDown, Calendar, BookOpen, MessageCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
@@ -55,7 +55,7 @@ export default function Dashboard() {
   const [showPlanTodayNote, setShowPlanTodayNote] = useState(false);
   const [datewiseAttendance, setDatewiseAttendance] = useState<DatewiseAttendanceEntry[]>([]);
   const [datewiseFilter, setDatewiseFilter] = useState("last5");
-
+  const [showFeedback, setShowFeedback] = useState(false);
 
   // TypeScript interface for datewise attendance
   interface DatewiseAttendanceEntry {
@@ -76,11 +76,9 @@ export default function Dashboard() {
         if (Array.isArray(parsedTimetable)) {
           setTodayTimetable(parsedTimetable);
         } else {
-          // If it's not an array (e.g., error object), set empty array
           setTodayTimetable([]);
         }
-      } catch (error) {
-        console.error("Error parsing timetable:", error);
+      } catch {
         setTodayTimetable([]);
       }
     }
@@ -94,8 +92,7 @@ export default function Dashboard() {
         } else {
           setDatewiseAttendance([]);
         }
-      } catch (error) {
-        console.error("Error parsing datewise attendance:", error);
+      } catch {
         setDatewiseAttendance([]);
       }
     }
@@ -107,24 +104,21 @@ export default function Dashboard() {
       setUsername(storedUsername)
     }
 
-    // Show login success message
-    // const loginSuccess = localStorage.getItem("loginSuccess")
+    // Only one debug: login successful (REMOVE console.log)
+    // const loginSuccess = localStorage.getItem("loginSuccess");
     // if (loginSuccess === "true") {
+    //   console.log("Login Successful");
     //   setTimeout(() => {
-    //     localStorage.removeItem("loginSuccess")
-    //   }, 3000)
-    //   // Show calculator dialog if not already shown
-    //   if (!localStorage.getItem("calculatorDialogShown")) {
-    //     setShowCalculatorDialog(true)
-    //     localStorage.setItem("calculatorDialogShown", "true")
-    //   }
+    //     localStorage.removeItem("loginSuccess");
+    //   }, 3000);
     // }
-
-
-
-
-
-
+    // Instead, just clean up the flag if needed:
+    const loginSuccess = localStorage.getItem("loginSuccess");
+    if (loginSuccess === "true") {
+      setTimeout(() => {
+        localStorage.removeItem("loginSuccess");
+      }, 3000);
+    }
   }, [])
 
   useEffect(() => {
@@ -262,30 +256,41 @@ export default function Dashboard() {
                 Dashboard
               </h1>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push("/analytics")}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
+              {/* Holidays Button */}
+              <button
+                onClick={() => router.push("/holidays")}
+                className="border border-white/30 rounded-lg px-2 py-1 text-sm sm:px-4 sm:py-2 sm:text-base text-white bg-transparent hover:bg-white/10 font-semibold flex items-center transition whitespace-nowrap"
               >
-                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Analytics</span>
-                <span className="sm:hidden">Chart</span>
-              </Button>
+                <svg className="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3M16 7V3M4 11h16M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Holidays
+              </button>
+              {/* Analytics Button */}
+              <button
+                onClick={() => router.push("/analytics")}
+                className="border border-white/30 rounded-lg px-2 py-1 text-sm sm:px-4 sm:py-2 sm:text-base text-white bg-transparent hover:bg-white/10 font-semibold flex items-center transition whitespace-nowrap"
+              >
+                <svg className="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V9m4 8V5m4 12v-4" />
+                </svg>
+                Analytics
+              </button>
+              {/* Profile/Logout Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                        <User className="w-4 h-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
+                  <button className="ml-1 sm:ml-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-2 flex items-center justify-center focus:outline-none">
+                    <User className="w-5 h-5 text-white" />
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 bg-black/80 backdrop-blur-xl border-white/20" align="end">
-                  <DropdownMenuItem onClick={handleLogout} className="text-white hover:bg-white/10">
-                    <LogOut className="mr-2 h-4 w-4" />
+                <DropdownMenuContent align="end" className="bg-[#18132a] border-none shadow-lg rounded-xl mt-2 min-w-[150px]">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-4 py-2 text-white hover:bg-white/10 cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -297,11 +302,13 @@ export default function Dashboard() {
 
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         {/* Themed ERP data note */}
+        {/* 
         <div className="mb-2">
           <div className="bg-gradient-to-r from-blue-700/80 via-purple-700/80 to-slate-800/80 text-white text-xs sm:text-sm rounded-xl px-4 py-2 font-semibold shadow-md border border-white/10 inline-block text-left">
             Note: All calculations are based on the latest data of your ERP portal.
           </div>
         </div>
+        */}
         {/* Hint block with bulb icon, left aligned and compact */}
         <div className="mb-4">
           <div className="bg-gradient-to-r from-blue-900/70 to-purple-700/70 rounded-xl px-4 py-2 text-white text-left font-semibold text-sm shadow border border-white/20 inline-block">
@@ -834,6 +841,62 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
+
+      {/* Floating Feedback Button */}
+      <button
+        className="fixed bottom-4 right-4 z-50 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full p-3 shadow-lg hover:scale-105 transition-all flex items-center justify-center focus:outline-none sm:bottom-6 sm:right-6"
+        onClick={() => setShowFeedback(true)}
+        aria-label="Give Feedback"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </button>
+
+      {/* Feedback Modal */}
+      {showFeedback && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="relative w-[95vw] max-w-lg mx-auto rounded-xl overflow-hidden shadow-2xl bg-gradient-to-r from-blue-900/90 to-purple-900/90">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center gap-2 text-white text-lg font-semibold">
+                <MessageCircle className="w-5 h-5" />
+                Feedback
+              </div>
+              <button
+                className="text-white hover:text-purple-300 transition"
+                onClick={() => setShowFeedback(false)}
+                aria-label="Close"
+              >
+                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* Responsive iframe */}
+            <div className="w-full bg-black/80" style={{ minHeight: 350, height: "60vh" }}>
+              <iframe
+                src="https://docs.google.com/forms/d/e/1FAIpQLSeJpZjU8Wpv6xRGWjMZ18e5DrZmephSbjuqWMFJS2lhGWo3uA/viewform?embedded=true"
+                width="100%"
+                height="100%"
+                className="w-full h-full"
+                style={{ border: "none" }}
+                allowFullScreen
+                title="Feedback Form"
+              >
+                Loading…
+              </iframe>
+            </div>
+            {/* Footer */}
+            <div className="flex justify-end p-4 border-t border-white/10 bg-gradient-to-r from-blue-900/80 to-purple-900/80">
+              <button
+                onClick={() => setShowFeedback(false)}
+                className="px-4 py-2 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
