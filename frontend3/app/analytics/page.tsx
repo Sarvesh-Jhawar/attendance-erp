@@ -64,8 +64,8 @@ export default function Analytics() {
 
   const getStatusStats = () => {
     const safe = chartData.filter((item) => item.percentage >= 75).length
-    const detained = chartData.filter((item) => item.percentage < 65).length
-    return { safe, detained }
+    const atRisk = chartData.filter((item) => item.percentage < 75).length
+    return { safe, atRisk }
   }
 
   const stats = getStatusStats()
@@ -77,7 +77,7 @@ export default function Analytics() {
 
   const getStatusBadge = (percentage: number) => {
     if (percentage >= 75) return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Safe</Badge>
-    if (percentage >= 65) return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Likely to be condonation</Badge>
+    if (percentage >= 65) return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Likely to be condonated</Badge>
     return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Likely to be detained</Badge>
   }
 
@@ -236,12 +236,12 @@ export default function Analytics() {
 
           <Card className="bg-black/40 backdrop-blur-xl border-white/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
-              <CardTitle className="text-xs sm:text-sm font-medium text-white/90">At Risk</CardTitle>
+              <CardTitle className="text-xs sm:text-sm font-medium text-white/90">Subjects at Risk</CardTitle>
               <BarChart3 className="h-3 w-3 sm:h-4 sm:w-4 text-red-400" />
             </CardHeader>
             <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
-              <div className="text-lg sm:text-2xl font-bold text-red-400">{stats.detained}</div>
-              <p className="text-xs text-white/70">&lt;65% attendance</p>
+              <div className="text-lg sm:text-2xl font-bold text-red-400">{stats.atRisk}</div>
+              <p className="text-xs text-white/70">&lt;75% attendance</p>
             </CardContent>
           </Card>
 

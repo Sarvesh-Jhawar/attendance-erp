@@ -30,10 +30,9 @@ export default function LoginPage() {
       formData.append("rollno", username)
       formData.append("password", password)
 
-      console.log("Sending login request to Java backend...")
-      
       // Make POST request to Java backend
-      const response = await fetch("https://attendance-erp.onrender.com/submit", {
+      const response = await fetch("https://attendance-erp.onrender.com/submit", { // Use deployed backend for production
+      // const response = await fetch("http://localhost:8084/submit", { // Use local backend for testing
         method: "POST",
         body: formData,
         headers: {
@@ -41,12 +40,8 @@ export default function LoginPage() {
         },
       })
 
-      console.log("Response status:", response.status)
-      console.log("Response headers:", response.headers)
-
       if (!response.ok) {
         const errorText = await response.text()
-        console.error("Server error response:", errorText)
         
         // Handle different HTTP status codes and error messages
         let errorMessage = "Login failed. Please try again later."
@@ -74,56 +69,83 @@ export default function LoginPage() {
       }
 
       // Parse the response data
-      const rawData = await response.json()
-      console.log("Raw response data:", rawData)
+      const rawData = await response.json();
+      console.log("Raw data received:", rawData);
+      console.log("Datewise attendance data:", rawData.datewiseAttendance);
+      console.log("Datewise attendance data (snake_case):", rawData.datewise_attendance);
       
-      // Transform data to match frontend expectations if needed
-      let attendanceData = rawData
-      
-      // Transform data to match frontend expectations based on actual backend format
-      if (Array.isArray(rawData) && rawData.length > 0) {
-        attendanceData = rawData.map((item, index) => ({
-          sn: index + 1,
-          subject: item.subject || item.subjectCode || '',
-          faculty: item.faculty || '',
-          held: parseInt(item.held) || 0,
-          attended: parseInt(item.attended) || 0,
-          percentage: parseFloat(item.percentage) || 0,
-          // Store additional backend data for potential future use
-          maxBunksAllowed: item.maxBunksAllowed || 0,
-          bunk90: item.bunk90 || 0,
-          bunk85: item.bunk85 || 0,
-          bunk80: item.bunk80 || 0,
-          bunk75: item.bunk75 || 0,
-          bunk70: item.bunk70 || 0,
-          bunk65: item.bunk65 || 0,
-          attend90: item.attend90 || 0,
-          attend85: item.attend85 || 0,
-          attend80: item.attend80 || 0,
-          attend75: item.attend75 || 0,
-          attend70: item.attend70 || 0,
-          attend65: item.attend65 || 0
-        }))
+      const attendanceArray = rawData.attendance || [];
+      const timetableArray = rawData.todayTimetable || rawData.today_timetable || [];
+      const datewiseAttendanceArray = rawData.datewiseAttendance || rawData.datewise_attendance || [];
+
+      // Validate timetable data - ensure it's an array and handle error objects
+      let validTimetableArray = [];
+      if (Array.isArray(timetableArray)) {
+        validTimetableArray = timetableArray;
+        console.log("Valid timetable array:", validTimetableArray);
+      } else if (timetableArray && typeof timetableArray === 'object' && timetableArray.error) {
+        // If it's an error object, use empty array
+        console.log("Timetable error:", timetableArray.error);
+        validTimetableArray = [];
+      } else {
+        // Fallback to empty array
+        console.log("Timetable is null/undefined, using empty array");
+        validTimetableArray = [];
       }
-      
-      console.log("Transformed attendance data:", attendanceData)
-      
+
+      // Validate datewise attendance data - ensure it's an array and handle error objects
+      let validDatewiseAttendanceArray = [];
+      if (Array.isArray(datewiseAttendanceArray)) {
+        validDatewiseAttendanceArray = datewiseAttendanceArray;
+        console.log("Valid datewise attendance array:", validDatewiseAttendanceArray);
+      } else if (datewiseAttendanceArray && typeof datewiseAttendanceArray === 'object' && datewiseAttendanceArray.error) {
+        // If it's an error object, use empty array
+        console.log("Datewise attendance error:", datewiseAttendanceArray.error);
+        validDatewiseAttendanceArray = [];
+      } else {
+        // Fallback to empty array
+        console.log("Datewise attendance is null/undefined, using empty array");
+        validDatewiseAttendanceArray = [];
+      }
+
+      // Transform attendance data as before
+      const attendanceData = attendanceArray.map((item: any, index: number) => ({
+        sn: index + 1,
+        subject: item.subject || item.subjectCode || '',
+        faculty: item.faculty || '',
+        held: parseInt(item.held) || 0,
+        attended: parseInt(item.attended) || 0,
+        percentage: parseFloat(item.percentage) || 0,
+        maxBunksAllowed: item.maxBunksAllowed || 0,
+        bunk90: item.bunk90 || 0,
+        bunk85: item.bunk85 || 0,
+        bunk80: item.bunk80 || 0,
+        bunk75: item.bunk75 || 0,
+        bunk70: item.bunk70 || 0,
+        bunk65: item.bunk65 || 0,
+        attend90: item.attend90 || 0,
+        attend85: item.attend85 || 0,
+        attend80: item.attend80 || 0,
+        attend75: item.attend75 || 0,
+        attend70: item.attend70 || 0,
+        attend65: item.attend65 || 0
+      }));
+
       // Validate data
       if (!Array.isArray(attendanceData) || attendanceData.length === 0) {
-        throw new Error("No attendance data received from server")
+        throw new Error("No attendance data received from server");
       }
-      
+
       // Store user data
-      localStorage.setItem("bunk_username", username)
-      localStorage.setItem("loginSuccess", "true")
-      localStorage.setItem("attendanceData", JSON.stringify(attendanceData))
-      
-      console.log("Login successful, navigating to dashboard...")
-      
+      localStorage.setItem("bunk_username", username);
+      localStorage.setItem("loginSuccess", "true");
+      localStorage.setItem("attendanceData", JSON.stringify(attendanceData));
+      localStorage.setItem("todayTimetable", JSON.stringify(validTimetableArray));
+      localStorage.setItem("datewiseAttendance", JSON.stringify(validDatewiseAttendanceArray));
+
       // Navigate to dashboard
-      router.push("/dashboard")
+      router.push("/dashboard");
     } catch (error) {
-      console.error("Login failed:", error)
       
       // Handle network/connection errors
       let errorMessage = "Cannot connect to server. Please try again later."
@@ -185,6 +207,21 @@ export default function LoginPage() {
               <CardDescription className="text-blue-300 text-base sm:text-lg">
                 Track Your Academic Attendance
               </CardDescription>
+              
+                             {/* Glassmorphism search accessibility note with shimmer effect */}
+               <div className="mt-4 p-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl relative overflow-hidden shadow-2xl">
+                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-purple-400/20 rounded-xl"></div>
+                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-xl"></div>
+                 
+                 {/* Shimmer effect - diagonal light sweep */}
+                 <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full animate-shimmer"></div>
+                 
+                                   <div className="relative z-10 flex items-center justify-center">
+                    <p className="text-white/90 text-xs sm:text-sm font-medium text-center drop-shadow-sm">
+                      💡 <span className="font-semibold text-cyan-300">Tip:</span> Search "CBIT Attendance Analyzer" on any browser!
+                    </p>
+                  </div>
+               </div>
             </CardHeader>
             <CardContent className="px-4 sm:px-6">
               <form onSubmit={handleSubmit} className="space-y-6">

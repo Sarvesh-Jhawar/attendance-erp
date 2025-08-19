@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { User, LogOut, BarChart3, Info, TrendingUp, TrendingDown, Calendar, BookOpen } from "lucide-react"
+import { User, LogOut, BarChart3, Info, TrendingUp, TrendingDown, Calendar, BookOpen, MessageCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
@@ -50,12 +50,52 @@ export default function Dashboard() {
   const { toast } = useToast();
   // Remove showCalculatorDialog state
   // const [showCalculatorDialog, setShowCalculatorDialog] = useState(false)
-  const [showCalculatorTooltip, setShowCalculatorTooltip] = useState(false)
-  const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const [todayTimetable, setTodayTimetable] = useState<{ period: string; subject: string }[]>([]);
+  const [showPlanTodayNote, setShowPlanTodayNote] = useState(false);
+  const [datewiseAttendance, setDatewiseAttendance] = useState<DatewiseAttendanceEntry[]>([]);
+  const [datewiseFilter, setDatewiseFilter] = useState("last5");
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  // TypeScript interface for datewise attendance
+  interface DatewiseAttendanceEntry {
+    date: string;
+    periods: string[];
+  }
 
   useEffect(() => {
     const storedData = localStorage.getItem("attendanceData")
     const storedUsername = localStorage.getItem("bunk_username")
+    const storedTimetable = localStorage.getItem("todayTimetable");
+    const storedDatewiseAttendance = localStorage.getItem("datewiseAttendance");
+    
+    // Safely parse timetable data
+    if (storedTimetable) {
+      try {
+        const parsedTimetable = JSON.parse(storedTimetable);
+        if (Array.isArray(parsedTimetable)) {
+          setTodayTimetable(parsedTimetable);
+        } else {
+          setTodayTimetable([]);
+        }
+      } catch {
+        setTodayTimetable([]);
+      }
+    }
+
+    // Safely parse datewise attendance data
+    if (storedDatewiseAttendance) {
+      try {
+        const parsedDatewiseAttendance = JSON.parse(storedDatewiseAttendance);
+        if (Array.isArray(parsedDatewiseAttendance)) {
+          setDatewiseAttendance(parsedDatewiseAttendance);
+        } else {
+          setDatewiseAttendance([]);
+        }
+      } catch {
+        setDatewiseAttendance([]);
+      }
+    }
 
     if (storedData) {
       setAttendanceData(JSON.parse(storedData))
@@ -64,31 +104,28 @@ export default function Dashboard() {
       setUsername(storedUsername)
     }
 
-    // Show login success message
-    // const loginSuccess = localStorage.getItem("loginSuccess")
+    // Only one debug: login successful (REMOVE console.log)
+    // const loginSuccess = localStorage.getItem("loginSuccess");
     // if (loginSuccess === "true") {
+    //   console.log("Login Successful");
     //   setTimeout(() => {
-    //     localStorage.removeItem("loginSuccess")
-    //   }, 3000)
-    //   // Show calculator dialog if not already shown
-    //   if (!localStorage.getItem("calculatorDialogShown")) {
-    //     setShowCalculatorDialog(true)
-    //     localStorage.setItem("calculatorDialogShown", "true")
-    //   }
+    //     localStorage.removeItem("loginSuccess");
+    //   }, 3000);
     // }
-
-    // Show one-time tooltip for Calculator tab
-    if (!localStorage.getItem("calculatorTooltipShown")) {
-      setShowCalculatorTooltip(true)
-      tooltipTimeoutRef.current = setTimeout(() => {
-        setShowCalculatorTooltip(false)
-        localStorage.setItem("calculatorTooltipShown", "true")
-      }, 12000) // 12 seconds
-    }
-    return () => {
-      if (tooltipTimeoutRef.current) clearTimeout(tooltipTimeoutRef.current)
+    // Instead, just clean up the flag if needed:
+    const loginSuccess = localStorage.getItem("loginSuccess");
+    if (loginSuccess === "true") {
+      setTimeout(() => {
+        localStorage.removeItem("loginSuccess");
+      }, 3000);
     }
   }, [])
+
+  useEffect(() => {
+    setShowPlanTodayNote(true);
+    const timer = setTimeout(() => setShowPlanTodayNote(false), 6000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const getMarks = (percentage: number) => {
     if (percentage >= 85) return 5
@@ -108,7 +145,7 @@ export default function Dashboard() {
   const getStatusBadge = (percentage: number) => {
     if (percentage >= 75) return <Badge className="bg-green-500/20 text-green-400 border-green-500/30">Safe</Badge>
     if (percentage >= 65)
-      return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Likely to be condonation</Badge>
+      return <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30">Likely to be condonated</Badge>
     return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Likely to be detained</Badge>
   }
 
@@ -167,9 +204,8 @@ export default function Dashboard() {
 
   const getSelectedData = () => {
     if (selectedSubject === "overall") {
-      const totalHeld = attendanceData.reduce((sum, item) => sum + item.held, 0)
-      const totalAttended = attendanceData.reduce((sum, item) => sum + item.attended, 0)
-      return { attended: totalAttended, held: totalHeld }
+      const totalRow = attendanceData[attendanceData.length - 1];
+      return { attended: totalRow?.attended || 0, held: totalRow?.held || 0 };
     }
     const index = Number.parseInt(selectedSubject)
     return attendanceData[index] || { attended: 0, held: 0 }
@@ -180,26 +216,34 @@ export default function Dashboard() {
     router.push("/")
   }
 
+  // Function to filter datewise attendance based on selected filter
+  const getFilteredDatewiseAttendance = () => {
+    if (!datewiseAttendance || datewiseAttendance.length === 0) return [];
+    
+    // Sort attendance data by date (most recent first)
+    const sortedAttendance = [...datewiseAttendance].sort((a, b) => {
+      const dateA = new Date(a.date.split('(')[0].trim());
+      const dateB = new Date(b.date.split('(')[0].trim());
+      return dateB.getTime() - dateA.getTime();
+    });
+    
+    switch (datewiseFilter) {
+      case "last5":
+        return sortedAttendance.slice(0, 5);
+      case "last10":
+        return sortedAttendance.slice(0, 10);
+      case "last20":
+        return sortedAttendance.slice(0, 20);
+      case "all":
+      default:
+        return sortedAttendance;
+    }
+  };
+
   const overallPercentage = calculateOverallAttendance()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Remove the Calculator Feature Dialog */}
-      {/* <Dialog open={showCalculatorDialog} onOpenChange={setShowCalculatorDialog}>
-        <DialogContent className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 border border-white/20 shadow-xl backdrop-blur-xl text-white">
-          <DialogHeader>
-            <DialogTitle className="text-white text-xl font-bold text-center">Must try the Calculator feature!</DialogTitle>
-          </DialogHeader>
-          <DialogFooter>
-            <button
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-2 px-4 rounded shadow w-full transition-colors duration-200"
-              onClick={() => setShowCalculatorDialog(false)}
-            >
-              OK
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
       {/* Header */}
       <div className="border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
@@ -212,30 +256,41 @@ export default function Dashboard() {
                 Dashboard
               </h1>
             </div>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push("/analytics")}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 text-xs sm:text-sm px-2 sm:px-3 h-8 sm:h-9"
+            <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
+              {/* Holidays Button */}
+              <button
+                onClick={() => router.push("/holidays")}
+                className="border border-white/30 rounded-lg px-2 py-1 text-sm sm:px-4 sm:py-2 sm:text-base text-white bg-transparent hover:bg-white/10 font-semibold flex items-center transition whitespace-nowrap"
               >
-                <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Analytics</span>
-                <span className="sm:hidden">Chart</span>
-              </Button>
+                <svg className="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3M16 7V3M4 11h16M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Holidays
+              </button>
+              {/* Analytics Button */}
+              <button
+                onClick={() => router.push("/analytics")}
+                className="border border-white/30 rounded-lg px-2 py-1 text-sm sm:px-4 sm:py-2 sm:text-base text-white bg-transparent hover:bg-white/10 font-semibold flex items-center transition whitespace-nowrap"
+              >
+                <svg className="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V9m4 8V5m4 12v-4" />
+                </svg>
+                Analytics
+              </button>
+              {/* Profile/Logout Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                        <User className="w-4 h-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
+                  <button className="ml-1 sm:ml-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-2 flex items-center justify-center focus:outline-none">
+                    <User className="w-5 h-5 text-white" />
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56 bg-black/80 backdrop-blur-xl border-white/20" align="end">
-                  <DropdownMenuItem onClick={handleLogout} className="text-white hover:bg-white/10">
-                    <LogOut className="mr-2 h-4 w-4" />
+                <DropdownMenuContent align="end" className="bg-[#18132a] border-none shadow-lg rounded-xl mt-2 min-w-[150px]">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-4 py-2 text-white hover:bg-white/10 cursor-pointer"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -246,11 +301,107 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+        {/* Themed ERP data note */}
+        {/* 
+        <div className="mb-2">
+          <div className="bg-gradient-to-r from-blue-700/80 via-purple-700/80 to-slate-800/80 text-white text-xs sm:text-sm rounded-xl px-4 py-2 font-semibold shadow-md border border-white/10 inline-block text-left">
+            Note: All calculations are based on the latest data of your ERP portal.
+          </div>
+        </div>
+        */}
+        {/* Hint block with bulb icon, left aligned and compact */}
+        <div className="mb-4">
+          <div className="bg-gradient-to-r from-blue-900/70 to-purple-700/70 rounded-xl px-4 py-2 text-white text-left font-semibold text-sm shadow border border-white/20 inline-block">
+            <span className="mr-2">💡</span>
+            <span className="text-[#5eead4] font-bold">Tip:</span>
+            <span className="ml-1 text-white">Always login to get the updated data.</span>
+          </div>
+        </div>
         {/* Welcome Message */}
         <div className="mb-6 sm:mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back, {username}</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Welcome back, {username && (username.endsWith('P') || username.endsWith('p')) ? username.slice(0, -1) : username}</h2>
           <p className="text-white/70 text-sm sm:text-base">Here's your attendance overview</p>
         </div>
+
+        {/* Today's Timetable - simple two-row table */}
+        {todayTimetable && todayTimetable.length > 0 ? (
+          <div className="mb-8">
+            <Card className="bg-black/40 backdrop-blur-xl border-white/20">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <div className="flex flex-row items-center gap-2 relative">
+                    <CardTitle className="text-white text-lg sm:text-xl inline-block">Today's Timetable</CardTitle>
+                    <div className="relative">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push("/plan-today")}
+                        className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-blue-400 hover:from-blue-600 hover:to-purple-700 text-xs sm:text-sm px-2 sm:px-3 h-7 sm:h-8 ml-2"
+                      >
+                        Plan Your Attendance →
+                      </Button>
+                      <span className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-1.5 py-0.5 rounded-full shadow-lg animate-pulse">
+                        NEW
+                      </span>
+                    </div>
+                  </div>
+                  <CardDescription className="text-white/70 text-sm">Your schedule for today</CardDescription>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="w-full overflow-x-auto whitespace-nowrap py-2">
+                  <div className="flex flex-row gap-4 min-w-max">
+                    {todayTimetable.map((item, idx) => {
+                      // If subject is 'Free' or similar, show 'P{number}' and 'Free Period'
+                      const isFree = item.subject.trim().toLowerCase() === 'free';
+                      let periodLabel = item.period;
+                      let subjectLabel = '';
+                      if (isFree) {
+                        periodLabel = `P${idx + 1}`;
+                        subjectLabel = 'Free Period';
+                      } else {
+                        // Try to find the full subject name from attendanceData
+                        subjectLabel = item.subject;
+                        if (attendanceData && attendanceData.length > 0) {
+                          const code = item.subject.split('(')[0].split(':')[0].trim().toLowerCase();
+                          const attMatch = attendanceData.find(a => a.subject.split(':')[0].trim().toLowerCase() === code);
+                          if (attMatch) {
+                            subjectLabel = attMatch.subject;
+                          }
+                        }
+                      }
+                      return (
+                        <div
+                          key={idx}
+                          className="inline-block min-w-[160px] max-w-[240px] bg-white/10 rounded-xl shadow hover:bg-white/20 transition p-4 mx-0 flex flex-col items-center justify-center"
+                        >
+                          <div className="font-bold text-blue-300 text-xs sm:text-sm mb-1 text-center">{periodLabel}</div>
+                          <div className="text-white text-sm sm:text-base text-center font-medium break-words whitespace-pre-line w-full">{subjectLabel}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="mb-8">
+            <Card className="bg-black/40 backdrop-blur-xl border-white/20">
+              <CardHeader>
+                <CardTitle className="text-white text-lg sm:text-xl">Today's Timetable</CardTitle>
+                <CardDescription className="text-white/70 text-sm">Your schedule for today</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8">
+                  <div className="text-white/60 text-sm mb-2">📅</div>
+                  <div className="text-white/80 text-base font-medium">No classes scheduled for today</div>
+                  <div className="text-white/60 text-sm mt-1">It might be a weekend or holiday</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Overall Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
@@ -296,57 +447,40 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="subjects" className="space-y-4 sm:space-y-6">
-          <TabsList className="bg-black/40 backdrop-blur-xl border-white/20 w-full sm:w-auto relative">
-            <TabsTrigger
-              value="subjects"
-              className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base"
-            >
-              Subjects
-            </TabsTrigger>
-            <div className="relative flex-1 sm:flex-none">
+          {/* Make tab navigation horizontally scrollable on mobile */}
+          <div className="w-full overflow-x-auto whitespace-nowrap py-1">
+            <TabsList className="bg-black/40 backdrop-blur-xl border-white/20 inline-flex w-max relative px-2">
               <TabsTrigger
+                value="subjects"
+                className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base"
+              >
+                Subjects
+              </TabsTrigger>
+              {/* Divider line */}
+              <div className="w-1 h-7 bg-white/80 mx-3 rounded-full inline-block"></div>
+                          <div className="relative">
+              <TabsTrigger
+                value="datewise"
+                className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base relative"
+              >
+                Date Wise
+              </TabsTrigger>
+              
+
+            </div>
+              {/* Divider line */}
+              <div className="w-1 h-7 bg-white/80 mx-3 rounded-full inline-block"></div>
+              <div className="relative flex-1 sm:flex-none inline-block">
+                              <TabsTrigger
                 value="calculator"
-                className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base flex items-center justify-center gap-2 relative"
+                className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base"
               >
                 Calculator
-                {/* Badge */}
-                <span className="ml-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white animate-pulse shadow-lg select-none">
-                  Try this
-                </span>
               </TabsTrigger>
-              {/* Tooltip/Coach Mark */}
-              {showCalculatorTooltip && (
-                <div
-                  className="z-50 w-max max-w-xs text-black text-xs sm:text-sm rounded-lg px-3 py-2 shadow-lg border border-purple-500 animate-fade-in-up"
-                  style={{
-                    position: 'absolute',
-                    left: '100%',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: '#fff'
-                  }}
-                >
-                  <span className="block text-center">Try this feature! 🎯</span>
-                  {/* Arrow for desktop */}
-                  <div className="hidden sm:block absolute -left-2 top-1/2 -translate-y-1/2 w-3 h-3 border-t border-l border-purple-500 rotate-45"
-                    style={{ background: '#fff' }}></div>
-                  {/* Arrow for mobile (below tab) */}
-                  <div className="block sm:hidden absolute left-1/2 -translate-x-1/2 -top-2 w-3 h-3 border-l border-t border-purple-500 rotate-45"
-                    style={{ background: '#fff' }}></div>
-                  <style>{`
-                    @media (max-width: 640px) {
-                      .z-50.w-max.max-w-xs.text-black {
-                        left: 50% !important;
-                        top: 100% !important;
-                        transform: translateX(-50%) !important;
-                        margin-top: 0.5rem !important;
-                      }
-                    }
-                  `}</style>
-                </div>
-              )}
-            </div>
-          </TabsList>
+
+              </div>
+            </TabsList>
+          </div>
 
           <TabsContent value="subjects">
             <Card className="bg-black/40 backdrop-blur-xl border-white/20">
@@ -384,7 +518,7 @@ export default function Dashboard() {
 
                 {/* Mobile-optimized table */}
                 <div className="overflow-x-auto">
-                  <Table className="min-w-full">
+                  <Table className="min-w-full border border-white/20 rounded-lg overflow-hidden">
                     <TableHeader>
                       <TableRow className="border-white/20">
                         <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4">S/N</TableHead>
@@ -447,17 +581,101 @@ export default function Dashboard() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="datewise">
+            <Card className="bg-black/40 backdrop-blur-xl border-white/20">
+              <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
+                <div>
+                  <CardTitle className="text-white text-lg sm:text-xl">Date Wise Attendance</CardTitle>
+                  <CardDescription className="text-white/70 text-sm">
+                    Track your daily attendance across all periods
+                  </CardDescription>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="datewise-filter" className="text-white/90 text-sm">
+                    Filter:
+                  </Label>
+                  <Select value={datewiseFilter} onValueChange={setDatewiseFilter}>
+                    <SelectTrigger className="w-32 sm:w-40 bg-white/10 border-white/20 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                                         <SelectContent className="bg-black/80 backdrop-blur-xl border-white/20">
+                       <SelectItem value="last5" className="text-white">Last 5 Days</SelectItem>
+                       <SelectItem value="last10" className="text-white">Last 10 Days</SelectItem>
+                       <SelectItem value="last20" className="text-white">Last 20 Days</SelectItem>
+                       <SelectItem value="all" className="text-white">All</SelectItem>
+                     </SelectContent>
+                  </Select>
+                </div>
+              </CardHeader>
+              <CardContent className="px-2 sm:px-6">
+                {(() => {
+                  const filteredData = getFilteredDatewiseAttendance();
+                  return filteredData.length > 0 ? (
+                    <div className="overflow-x-auto">
+                                           <Table className="min-w-full border border-white/20 rounded-lg overflow-hidden">
+                       <TableHeader>
+                         <TableRow className="border-white/20 bg-white/5">
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">Date</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">P1</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">P2</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">P3</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">P4</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">P5</TableHead>
+                           <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 text-center">P6</TableHead>
+                         </TableRow>
+                       </TableHeader>
+                       <TableBody>
+                         {filteredData.map((item, index) => (
+                           <TableRow key={index} className="border-white/10 hover:bg-white/5">
+                             <TableCell className="text-white font-medium text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">
+                               {item.date}
+                             </TableCell>
+                             {item.periods.map((period, periodIndex) => (
+                               <TableCell key={periodIndex} className="text-center px-2 sm:px-4 border-r border-white/20 last:border-r-0">
+                                 <Badge 
+                                   className={`text-xs font-semibold w-6 h-6 flex items-center justify-center ${
+                                     period === 'P' 
+                                       ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                                       : period === 'A' 
+                                         ? 'bg-red-500/20 text-red-400 border-red-500/30'
+                                         : 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                                   }`}
+                                 >
+                                   {period}
+                                 </Badge>
+                               </TableCell>
+                             ))}
+                           </TableRow>
+                         ))}
+                       </TableBody>
+                     </Table>
+                  </div>
+                                 ) : datewiseAttendance.length > 0 ? (
+                   <div className="text-center py-8">
+                     <div className="text-white/60 text-sm mb-2">📅</div>
+                     <div className="text-white/80 text-base font-medium">No data for selected filter</div>
+                     <div className="text-white/60 text-sm mt-1">Try selecting a different time period</div>
+                   </div>
+                 ) : (
+                   <div className="text-center py-8">
+                     <div className="text-white/60 text-sm mb-2">📅</div>
+                     <div className="text-white/80 text-base font-medium">No datewise attendance data available</div>
+                     <div className="text-white/60 text-sm mt-1">This data will be available when you log in</div>
+                   </div>
+                 );
+               })()}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="calculator">
             <div className="space-y-6">
               <Card className="bg-black/40 backdrop-blur-xl border-white/20">
                 <CardHeader>
                   <CardTitle className="text-white">Attendance Calculator</CardTitle>
-                  <CardDescription className="text-white/70">
-                    Calculate how many classes you can skip or need to attend
-                  </CardDescription>
                   <p className="bg-blue-600/80 text-white text-xs mt-2 px-3 py-2 rounded-lg font-semibold shadow-md flex items-center w-fit">
-                    Click on
-                    <span className="inline-block align-middle mx-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-info w-4 h-4 inline"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg></span>for more help.
+                    Use the
+                    <span className="inline-block align-middle mx-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-info w-4 h-4 inline"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg></span>icon for more help.
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -471,7 +689,7 @@ export default function Dashboard() {
                     Select Subject / Overall
                   </Label>
                   <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                    <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                    <SelectTrigger className="bg-white/10 border-2 border-blue-400 focus:border-purple-500 shadow-lg text-white">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-black/80 backdrop-blur-xl border-white/20">
@@ -485,6 +703,45 @@ export default function Dashboard() {
                       ))}
                     </SelectContent>
                   </Select>
+
+                  {/* --- Summary Table for Selected Subject/Overall --- */}
+                  <div className="my-4">
+  <div className="overflow-x-auto">
+    <Table className="min-w-[340px] border border-white/70 overflow-hidden">
+      <TableHeader>
+        <TableRow className="bg-white/10 border-b border-white/70">
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap w-[80px]">Selected</TableHead>
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[90px]">Attendance %</TableHead>
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[70px]">Held</TableHead>
+          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap text-center w-[90px]">Attended</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {(() => {
+          const data = getSelectedData();
+          const selectedItem = selectedSubject === "overall"
+            ? { subject: "Overall", percentage: overallPercentage, held: data.held, attended: data.attended }
+            : attendanceData[Number.parseInt(selectedSubject)];
+          return (
+            <TableRow className="border-b border-white/70">
+              <TableCell className="text-white font-medium text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap w-[80px]">
+                {selectedSubject === "overall"
+                  ? "Overall"
+                  : selectedItem?.subject?.split(":")[0] ?? ""}
+              </TableCell>
+              <TableCell className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[90px] ${selectedItem?.held === 0 && selectedItem?.attended === 0 ? 'text-white/60' : getStatusColor(selectedItem?.percentage ?? 0)}`}>
+                {selectedItem?.held === 0 && selectedItem?.attended === 0 ? "0%" : `${(selectedItem?.percentage ?? overallPercentage).toFixed(1)}%`}
+              </TableCell>
+              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[70px]">{selectedItem?.held ?? 0}</TableCell>
+              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap text-center w-[90px]">{selectedItem?.attended ?? 0}</TableCell>
+            </TableRow>
+          );
+        })()}
+      </TableBody>
+    </Table>
+  </div>
+</div>
+                  {/* --- End Summary Table --- */}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card className="bg-green-500/10 border-green-500/20">
@@ -584,6 +841,62 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
+
+      {/* Floating Feedback Button */}
+      <button
+        className="fixed bottom-4 right-4 z-50 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full p-3 shadow-lg hover:scale-105 transition-all flex items-center justify-center focus:outline-none sm:bottom-6 sm:right-6"
+        onClick={() => setShowFeedback(true)}
+        aria-label="Give Feedback"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </button>
+
+      {/* Feedback Modal */}
+      {showFeedback && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="relative w-[95vw] max-w-lg mx-auto rounded-xl overflow-hidden shadow-2xl bg-gradient-to-r from-blue-900/90 to-purple-900/90">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <div className="flex items-center gap-2 text-white text-lg font-semibold">
+                <MessageCircle className="w-5 h-5" />
+                Feedback
+              </div>
+              <button
+                className="text-white hover:text-purple-300 transition"
+                onClick={() => setShowFeedback(false)}
+                aria-label="Close"
+              >
+                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {/* Responsive iframe */}
+            <div className="w-full bg-black/80" style={{ minHeight: 350, height: "60vh" }}>
+              <iframe
+                src="https://docs.google.com/forms/d/e/1FAIpQLSeJpZjU8Wpv6xRGWjMZ18e5DrZmephSbjuqWMFJS2lhGWo3uA/viewform?embedded=true"
+                width="100%"
+                height="100%"
+                className="w-full h-full"
+                style={{ border: "none" }}
+                allowFullScreen
+                title="Feedback Form"
+              >
+                Loading…
+              </iframe>
+            </div>
+            {/* Footer */}
+            <div className="flex justify-end p-4 border-t border-white/10 bg-gradient-to-r from-blue-900/80 to-purple-900/80">
+              <button
+                onClick={() => setShowFeedback(false)}
+                className="px-4 py-2 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
