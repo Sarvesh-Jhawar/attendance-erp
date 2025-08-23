@@ -1,8 +1,9 @@
 "use client"
 
 import { Label } from "@/components/ui/label"
+import React, { useState } from "react";
 
-import { useState, useEffect, useRef } from "react"
+import { useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -17,6 +18,7 @@ import { useRouter } from "next/navigation"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
+import Sidebar from "@/components/sidebar";
 
 interface AttendanceData {
   sn: number
@@ -56,6 +58,7 @@ export default function Dashboard() {
   const [datewiseAttendance, setDatewiseAttendance] = useState<DatewiseAttendanceEntry[]>([]);
   const [datewiseFilter, setDatewiseFilter] = useState("last5");
   const [showFeedback, setShowFeedback] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // TypeScript interface for datewise attendance
   interface DatewiseAttendanceEntry {
@@ -249,23 +252,40 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center space-x-2 sm:space-x-4">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-              </div>
+              {/* Hamburger Icon beside Dashboard text */}
+              <button
+                className="flex flex-col justify-center items-center w-10 h-10 bg-slate-900 rounded-md shadow-lg mr-2 relative"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Open sidebar"
+              >
+                <span className="block w-6 h-0.5 bg-white mb-1"></span>
+                <span className="block w-6 h-0.5 bg-white mb-1"></span>
+                <span className="block w-6 h-0.5 bg-white"></span>
+                {/* Blinking dot */}
+                <span
+                  className="absolute -top-1.5 -right-1.5 w-3 h-3 rounded-full bg-orange-400 shadow-lg animate-pulse"
+                  style={{ animation: "blinker 1.2s linear infinite" }}
+                ></span>
+                <style jsx>{`
+                  @keyframes blinker {
+                    50% { opacity: 0.4; }
+                  }
+                `}</style>
+              </button>
               <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 Dashboard
               </h1>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
-              {/* Holidays Button */}
+              {/* Events Button */}
               <button
-                onClick={() => router.push("/holidays")}
+                onClick={() => router.push("/events")}
                 className="border border-white/30 rounded-lg px-2 py-1 text-sm sm:px-4 sm:py-2 sm:text-base text-white bg-transparent hover:bg-white/10 font-semibold flex items-center transition whitespace-nowrap"
               >
                 <svg className="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3M16 7V3M4 11h16M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Holidays
+                Events
               </button>
               {/* Analytics Button */}
               <button
@@ -278,29 +298,16 @@ export default function Dashboard() {
                 </svg>
                 Analytics
               </button>
-              {/* Profile/Logout Dropdown */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="ml-1 sm:ml-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-2 flex items-center justify-center focus:outline-none">
-                    <User className="w-5 h-5 text-white" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-[#18132a] border-none shadow-lg rounded-xl mt-2 min-w-[150px]">
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="flex items-center gap-2 px-4 py-2 text-white hover:bg-white/10 cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
+      {/* Sidebar overlay */}
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+
+      {/* Main content */}
+      <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
         {/* Themed ERP data note */}
         {/* 
         <div className="mb-2">
@@ -471,7 +478,7 @@ export default function Dashboard() {
               {/* Divider line */}
               <div className="w-1 h-7 bg-white/80 mx-3 rounded-full inline-block"></div>
               <div className="relative flex-1 sm:flex-none inline-block">
-                              <TabsTrigger
+                          <TabsTrigger
                 value="calculator"
                 className="data-[state=active]:bg-white/20 text-white flex-1 sm:flex-none text-sm sm:text-base"
               >
@@ -612,7 +619,7 @@ export default function Dashboard() {
                   const filteredData = getFilteredDatewiseAttendance();
                   return filteredData.length > 0 ? (
                     <div className="overflow-x-auto">
-                                           <Table className="min-w-full border border-white/20 rounded-lg overflow-hidden">
+                                         <Table className="min-w-full border border-white/20 rounded-lg overflow-hidden">
                        <TableHeader>
                          <TableRow className="border-white/20 bg-white/5">
                            <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/20 text-center">Date</TableHead>
@@ -706,41 +713,41 @@ export default function Dashboard() {
 
                   {/* --- Summary Table for Selected Subject/Overall --- */}
                   <div className="my-4">
-  <div className="overflow-x-auto">
-    <Table className="min-w-[340px] border border-white/70 overflow-hidden">
-      <TableHeader>
-        <TableRow className="bg-white/10 border-b border-white/70">
-          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap w-[80px]">Selected</TableHead>
-          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[90px]">Attendance %</TableHead>
-          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[70px]">Held</TableHead>
-          <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap text-center w-[90px]">Attended</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {(() => {
-          const data = getSelectedData();
-          const selectedItem = selectedSubject === "overall"
-            ? { subject: "Overall", percentage: overallPercentage, held: data.held, attended: data.attended }
-            : attendanceData[Number.parseInt(selectedSubject)];
-          return (
-            <TableRow className="border-b border-white/70">
-              <TableCell className="text-white font-medium text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap w-[80px]">
-                {selectedSubject === "overall"
-                  ? "Overall"
-                  : selectedItem?.subject?.split(":")[0] ?? ""}
-              </TableCell>
-              <TableCell className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[90px] ${selectedItem?.held === 0 && selectedItem?.attended === 0 ? 'text-white/60' : getStatusColor(selectedItem?.percentage ?? 0)}`}>
-                {selectedItem?.held === 0 && selectedItem?.attended === 0 ? "0%" : `${(selectedItem?.percentage ?? overallPercentage).toFixed(1)}%`}
-              </TableCell>
-              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[70px]">{selectedItem?.held ?? 0}</TableCell>
-              <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap text-center w-[90px]">{selectedItem?.attended ?? 0}</TableCell>
+      <div className="overflow-x-auto">
+        <Table className="min-w-[340px] border border-white/70 overflow-hidden">
+          <TableHeader>
+            <TableRow className="bg-white/10 border-b border-white/70">
+              <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap w-[80px]">Selected</TableHead>
+              <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[90px]">Attendance %</TableHead>
+              <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[70px]">Held</TableHead>
+              <TableHead className="text-white/90 text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap text-center w-[90px]">Attended</TableHead>
             </TableRow>
-          );
-        })()}
-      </TableBody>
-    </Table>
-  </div>
-</div>
+          </TableHeader>
+          <TableBody>
+            {(() => {
+              const data = getSelectedData();
+              const selectedItem = selectedSubject === "overall"
+                ? { subject: "Overall", percentage: overallPercentage, held: data.held, attended: data.attended }
+                : attendanceData[Number.parseInt(selectedSubject)];
+              return (
+                <TableRow className="border-b border-white/70">
+                  <TableCell className="text-white font-medium text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap w-[80px]">
+                    {selectedSubject === "overall"
+                      ? "Overall"
+                      : selectedItem?.subject?.split(":")[0] ?? ""}
+                  </TableCell>
+                  <TableCell className={`font-semibold text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[90px] ${selectedItem?.held === 0 && selectedItem?.attended === 0 ? 'text-white/60' : getStatusColor(selectedItem?.percentage ?? 0)}`}>
+                    {selectedItem?.held === 0 && selectedItem?.attended === 0 ? "0%" : `${(selectedItem?.percentage ?? overallPercentage).toFixed(1)}%`}
+                  </TableCell>
+                  <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 border-r border-white/70 whitespace-nowrap text-center w-[70px]">{selectedItem?.held ?? 0}</TableCell>
+                  <TableCell className="text-white text-xs sm:text-sm px-2 sm:px-4 whitespace-nowrap text-center w-[90px]">{selectedItem?.attended ?? 0}</TableCell>
+                </TableRow>
+              );
+            })()}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
                   {/* --- End Summary Table --- */}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -840,63 +847,8 @@ export default function Dashboard() {
             * This data is calculated based on your ERP data. For official records, always refer to your ERP portal.
           </p>
         </div>
-      </div>
-
-      {/* Floating Feedback Button */}
-      <button
-        className="fixed bottom-4 right-4 z-50 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full p-3 shadow-lg hover:scale-105 transition-all flex items-center justify-center focus:outline-none sm:bottom-6 sm:right-6"
-        onClick={() => setShowFeedback(true)}
-        aria-label="Give Feedback"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </button>
-
-      {/* Feedback Modal */}
-      {showFeedback && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="relative w-[95vw] max-w-lg mx-auto rounded-xl overflow-hidden shadow-2xl bg-gradient-to-r from-blue-900/90 to-purple-900/90">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <div className="flex items-center gap-2 text-white text-lg font-semibold">
-                <MessageCircle className="w-5 h-5" />
-                Feedback
-              </div>
-              <button
-                className="text-white hover:text-purple-300 transition"
-                onClick={() => setShowFeedback(false)}
-                aria-label="Close"
-              >
-                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            {/* Responsive iframe */}
-            <div className="w-full bg-black/80" style={{ minHeight: 350, height: "60vh" }}>
-              <iframe
-                src="https://docs.google.com/forms/d/e/1FAIpQLSeJpZjU8Wpv6xRGWjMZ18e5DrZmephSbjuqWMFJS2lhGWo3uA/viewform?embedded=true"
-                width="100%"
-                height="100%"
-                className="w-full h-full"
-                style={{ border: "none" }}
-                allowFullScreen
-                title="Feedback Form"
-              >
-                Loading…
-              </iframe>
-            </div>
-            {/* Footer */}
-            <div className="flex justify-end p-4 border-t border-white/10 bg-gradient-to-r from-blue-900/80 to-purple-900/80">
-              <button
-                onClick={() => setShowFeedback(false)}
-                className="px-4 py-2 rounded-lg bg-white/10 text-white font-semibold hover:bg-white/20 transition"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      </main>
     </div>
-  )
+  );
 }
+
