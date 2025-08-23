@@ -46,7 +46,7 @@ const clubs = [
 		instagram: "https://www.instagram.com/chaitanya_srujana_cbit/?hl=en",
 	},
 	{
-		name: "PRAHETI RACING CLUB",
+		name: "PRAHETI RACING SAE CBIT",
 		logo: "/logo/praheti.jpg",
 		instagram: "https://www.instagram.com/prahetiracing/",
 	},
