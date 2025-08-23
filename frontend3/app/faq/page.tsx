@@ -8,6 +8,10 @@ const faqs = [
 		a: "After logging in, your dashboard will display your attendance in real time based on ERP data.",
 	},
 	{
+		q: "How do the calculator feature works?",
+		 a: "The calculator estimates your attendance based only on the classes for which data is currently available. It does not consider the total number of classes scheduled for the entire semester, but rather works with the present attendance records shown in the ERP.",
+	},
+	{
 		q: "How often is the attendance updated?",
 		a: "Attendance is updated daily based on records from the official ERP portal.",
 	},
