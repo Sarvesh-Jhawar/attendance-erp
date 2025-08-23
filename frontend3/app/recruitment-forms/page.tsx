@@ -7,21 +7,25 @@ const forms = [
 		club: "Chaitanya Kreeda",
 		link: "https://docs.google.com/forms/d/e/1FAIpQLScqwCbSMANFLqbBhT_XFWrUAZxLCzXewwGlIm_kkCW2Mk8T3Q/viewform",
 		lastDate: "23-08-2025",
+		eligibility: "Anyone",
 	},
-	// {
-	// 	club: "Coding Club",
-	// 	link: "https://forms.gle/example1",
-	// 	lastDate: "30-08-2025",
-	// },
+	{
+		club: "ASME Club",
+		link: "https://forms.gle/C4MxMhg2cNyVUB2V6",
+		lastDate: "N/A",
+		eligibility: "2 & 3 year",
+	},
 	// {
 	// 	club: "Chaitanya Spandana",
 	// 	link: "https://forms.gle/example2",
 	// 	lastDate: "05-09-2025",
+	// 	eligibility: "Anyone",
 	// },
 	// {
 	// 	club: "Chaitanya Geethi",
 	// 	link: "https://forms.gle/example3",
 	// 	lastDate: "10-09-2025",
+	// 	eligibility: "Anyone",
 	// },
 ];
 
@@ -103,7 +107,7 @@ export default function RecruitmentFormsPage() {
 					</div>
 				) : (
 					<div className="bg-[#2d2047] rounded-xl p-0 shadow-lg border border-[#6441a5] overflow-x-auto">
-						<table className="w-full text-left min-w-[600px]">
+						<table className="w-full text-left min-w-[750px]">
 							<thead>
 								<tr className="bg-[#6c4bb6] text-white text-base sm:text-lg">
 									<th className="py-3 px-4 rounded-tl-xl border-r border-[#6441a5] whitespace-nowrap">
@@ -111,6 +115,9 @@ export default function RecruitmentFormsPage() {
 									</th>
 									<th className="py-3 px-4 border-r border-[#6441a5] whitespace-nowrap">
 										Form Link
+									</th>
+									<th className="py-3 px-4 border-r border-[#6441a5] whitespace-nowrap">
+										Eligibility
 									</th>
 									<th className="py-3 px-4 rounded-tr-xl whitespace-nowrap">
 										Last Date to Apply
@@ -132,6 +139,9 @@ export default function RecruitmentFormsPage() {
 											>
 												Apply Here
 											</a>
+										</td>
+										<td className="py-3 px-4 text-white border-r border-[#6441a5] whitespace-nowrap">
+											{form.eligibility}
 										</td>
 										<td className="py-3 px-4 text-white whitespace-nowrap">
 											{form.lastDate}
