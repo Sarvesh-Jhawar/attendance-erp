@@ -10,7 +10,7 @@ const forms = [
 		eligibility: "Anyone",
 	},
 	{
-		club: "ASME Club",
+		club: "ASME CBIT",
 		link: "https://forms.gle/C4MxMhg2cNyVUB2V6",
 		lastDate: "N/A",
 		eligibility: "2 & 3 year",
