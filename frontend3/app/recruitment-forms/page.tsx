@@ -6,13 +6,19 @@ const forms = [
 	{
 		club: "Chaitanya Kreeda",
 		link: "https://docs.google.com/forms/d/e/1FAIpQLScqwCbSMANFLqbBhT_XFWrUAZxLCzXewwGlIm_kkCW2Mk8T3Q/viewform",
-		lastDate: "23-08-2025",
+		lastDate: "24-08-2025",
 		eligibility: "Anyone",
 	},
 	{
 		club: "ASME CBIT",
 		link: "https://forms.gle/C4MxMhg2cNyVUB2V6",
 		lastDate: "N/A",
+		eligibility: "2 & 3 year",
+	},
+	{
+		club: "CBIT Developer Student Club",
+		link: "https://docs.google.com/forms/d/e/1FAIpQLSckb7r8h07usWQHHhq8L9LopY-4h0fLNN925gUkMrLvkhUc4g/viewform",
+		lastDate: "24-08-2025",
 		eligibility: "2 & 3 year",
 	},
 	// {

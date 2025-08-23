@@ -51,6 +51,11 @@ const clubs = [
 		instagram: "https://www.instagram.com/cbitosc/?hl=en",
 	},
 	{
+		name: "CBIT Developer Student Club",
+		logo: "/logo/cdsc.jpg",
+		instagram: "https://www.instagram.com/cbitdsc/",
+	},
+	{
 		name: "CBIT Model United Nations",
 		logo: "/logo/mun.jpg",
 		instagram: "https://www.instagram.com/cbitmunhyd/?hl=en",
@@ -64,6 +69,11 @@ const clubs = [
 		name: "Toastmasters CBIT",
 		logo: "/logo/toastmaster.jpg",
 		instagram: "https://www.instagram.com/tmcbit/?hl=en",
+	},
+	{
+		name: "WRITERS AND POETS CLUB",
+		logo: "/logo/wpc.jpg",
+		instagram: "https://www.instagram.com/wpc_cbit/n",
 	},
 	{
 		name: "CBIT E-sports Club",
@@ -89,6 +99,11 @@ const clubs = [
 		name: "ASME CBIT",
 		logo: "/logo/asme.jpg",
 		instagram: "https://www.instagram.com/asme.cbit/",
+	},
+	{
+		name: "PRAHETI RACING CLUB",
+		logo: "/logo/praheti.jpg",
+		instagram: "https://www.instagram.com/prahetiracing/",
 	},
 	{
 		name: "VMEDHA",
