@@ -46,6 +46,11 @@ const clubs = [
 		instagram: "https://www.instagram.com/chaitanya_srujana_cbit/?hl=en",
 	},
 	{
+		name: "PRAHETI RACING CLUB",
+		logo: "/logo/praheti.jpg",
+		instagram: "https://www.instagram.com/prahetiracing/",
+	},
+	{
 		name: "CBIT Open Source Community",
 		logo: "/logo/cosc.jpg",
 		instagram: "https://www.instagram.com/cbitosc/?hl=en",
@@ -99,11 +104,6 @@ const clubs = [
 		name: "ASME CBIT",
 		logo: "/logo/asme.jpg",
 		instagram: "https://www.instagram.com/asme.cbit/",
-	},
-	{
-		name: "PRAHETI RACING CLUB",
-		logo: "/logo/praheti.jpg",
-		instagram: "https://www.instagram.com/prahetiracing/",
 	},
 	{
 		name: "VMEDHA",

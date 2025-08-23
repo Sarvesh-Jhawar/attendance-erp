@@ -3,35 +3,24 @@
 import Link from "next/link";
 import { useState } from "react";
 
-// const events = [
-//   {
-//     club: "Chaitnya Spandana",
-//     poster: "/images/spandana.jpg",
-//     name: "Annual Summit",
-//   },
-//   {
-//     club: "Chaitanya Geethi",
-//     poster: "/images/music-event.jpg",
-//     name: "Battle of Bands",
-//   },
-//   {
-//     club: "Chaitanya Kreeda",
-//     poster: "/images/robotics-event.jpg",
-//     name: "Pickleball",
-//   },
-// ];
-
 // Future events can be added here
 const events = [
-	// {
-	// 	club: "",
-	// 	poster: "",
-	// 	name: "",
-	// },
+	 {
+	 	club: "Praheti Racing SAE CBIT",
+		poster: "/images/praheti.png",
+	 	name: "Eight-Day International Workshop",
+	 },
 ];
 
+type Event = {
+  club: string;
+  poster: string;
+  name: string;
+  // add other fields if needed
+};
+
 export default function EventsPage() {
-	const [selectedEvent, setSelectedEvent] = useState(null);
+	const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -78,7 +67,7 @@ export default function EventsPage() {
 							WebkitTextFillColor: "transparent",
 						}}
 					>
-						Upcoming Club Events
+						Club Events
 					</span>
 				</div>
 				<div className="mt-3 sm:mt-0 sm:ml-auto flex items-center">
