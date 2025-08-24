@@ -61,6 +61,11 @@ const clubs = [
 		instagram: "https://www.instagram.com/cbitdsc/",
 	},
 	{
+		name: "Computer Society of India-CBIT",
+		logo: "/logo/csoi.jpg",
+		instagram: "https://www.instagram.com/csi_cbit_/",
+	},
+	{
 		name: "CBIT Model United Nations",
 		logo: "/logo/mun.jpg",
 		instagram: "https://www.instagram.com/cbitmunhyd/?hl=en",
@@ -89,6 +94,11 @@ const clubs = [
 		name: "EWB-CBIT",
 		logo: "/logo/ewb.jpg",
 		instagram: "https://www.instagram.com/ewbcbit/?hl=en",
+	},
+	{
+		name: "CBIT FinFoundry",
+		logo: "/logo/finFoundry.jpg",
+		instagram: "https://www.instagram.com/cbit_finfoundry/",
 	},
 	{
 		name: "RAMANUJAN MATHS CLUB",
@@ -120,7 +130,11 @@ const clubs = [
 		logo: "/logo/swasthaya.jpg",
 		instagram: "https://www.instagram.com/chaitanya_suraksha/",
 	},
-
+    {
+		name: "Football Club CBIT",
+		logo: "/logo/cbitFC.jpg",
+		instagram: "https://www.instagram.com/cbit.fc/",
+	},
 	// Add more clubs here if needed
 ];
 

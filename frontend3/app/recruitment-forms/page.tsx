@@ -9,17 +9,18 @@ const forms = [
 		lastDate: "24-08-2025",
 		eligibility: "Anyone",
 	},
-	{
-		club: "ASME CBIT",
-		link: "https://forms.gle/C4MxMhg2cNyVUB2V6",
-		lastDate: "N/A",
-		eligibility: "2 & 3 year",
-	},
+	
 	{
 		club: "CBIT Developer Student Club",
 		link: "https://docs.google.com/forms/d/e/1FAIpQLSckb7r8h07usWQHHhq8L9LopY-4h0fLNN925gUkMrLvkhUc4g/viewform",
 		lastDate: "27-08-2025",
 		eligibility: "2 & 3 year",
+	},
+	{
+		club: "CBIT FC",
+		link: "https://docs.google.com/forms/d/e/1FAIpQLSf868IQMbg6u8FQ5HmVnRj4f6UgBPoC8l03C5XYNNeJG321VQ/viewform?usp=header",
+		lastDate: "N/A",
+		eligibility: "1 & 2 year",
 	},
 	// {
 	// 	club: "Chaitanya Spandana",
