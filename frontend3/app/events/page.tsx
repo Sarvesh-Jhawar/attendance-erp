@@ -6,6 +6,11 @@ import { useState } from "react";
 // Future events can be added here
 const events = [
 	 {
+	 	club: "Chaitanya Spandana",
+		poster: "/images/Ganeshotsav.jpg",
+	 	name: "Ganeshotsav 2025",
+	 },
+	 {
 	 	club: "Praheti Racing SAE CBIT",
 		poster: "/images/praheti.png",
 	 	name: "Eight-Day International Workshop",
