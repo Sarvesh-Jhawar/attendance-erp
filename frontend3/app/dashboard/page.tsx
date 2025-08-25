@@ -59,6 +59,7 @@ export default function Dashboard() {
   const [datewiseFilter, setDatewiseFilter] = useState("last5");
   const [showFeedback, setShowFeedback] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showCalcInfo, setShowCalcInfo] = useState(false);
 
   // TypeScript interface for datewise attendance
   interface DatewiseAttendanceEntry {
@@ -277,26 +278,86 @@ export default function Dashboard() {
               </h1>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
-              {/* Events Button */}
+              {/* Events Button with Animated Text Gradient */}
               <button
                 onClick={() => router.push("/events")}
-                className="border border-white/30 rounded-lg px-2 py-1 text-sm sm:px-4 sm:py-2 sm:text-base text-white bg-transparent hover:bg-white/10 font-semibold flex items-center transition whitespace-nowrap"
+                className="relative border border-white/30 rounded-lg px-2 py-1 text-sm sm:px-4 sm:py-2 sm:text-base text-white bg-transparent hover:bg-white/10 font-semibold flex items-center transition whitespace-nowrap group overflow-hidden"
               >
-                <svg className="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                {/* Animated Calendar Icon */}
+                <svg
+                  className="w-4 h-4 mr-1 sm:mr-2 animate-bounce-slow group-hover:animate-bounce-fast"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                  style={{ willChange: "transform" }}
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3M16 7V3M4 11h16M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Events
+                <span className="relative font-bold bg-gradient-to-r from-pink-400 via-yellow-400 to-blue-400 bg-[length:200%_200%] bg-clip-text text-transparent animate-gradient-move">
+                  Events
+                </span>
+                <style jsx>{`
+                  @keyframes bounce-slow {
+                    0%, 100% { transform: translateY(0);}
+                    50% { transform: translateY(-6px);}
+                  }
+                  @keyframes bounce-fast {
+                    0%, 100% { transform: translateY(0);}
+                    50% { transform: translateY(-12px);}
+                  }
+                  .animate-bounce-slow {
+                    animation: bounce-slow 1.6s infinite;
+                  }
+                  .group:hover .animate-bounce-slow {
+                    animation: bounce-fast 0.7s infinite;
+                  }
+                  @keyframes gradient-move {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                  }
+                  .animate-gradient-move {
+                    animation: gradient-move 2.5s ease-in-out infinite;
+                  }
+                `}</style>
               </button>
-              {/* Analytics Button */}
+              {/* Analytics Button with Animated Text Gradient */}
               <button
                 onClick={() => router.push("/analytics")}
-                className="border border-white/30 rounded-lg px-2 py-1 text-sm sm:px-4 sm:py-2 sm:text-base text-white bg-transparent hover:bg-white/10 font-semibold flex items-center transition whitespace-nowrap"
+                className="border border-white/30 rounded-lg px-2 py-1 text-sm sm:px-4 sm:py-2 sm:text-base text-white bg-transparent hover:bg-white/10 font-semibold flex items-center transition whitespace-nowrap group overflow-hidden"
               >
-                <svg className="w-4 h-4 mr-1 sm:mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-1 sm:mr-2 animate-bounce-slow group-hover:animate-bounce-fast" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ willChange: "transform" }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 17V9m4 8V5m4 12v-4" />
                 </svg>
-                Analytics
+                <span className="relative font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-green-400 bg-[length:200%_200%] bg-clip-text text-transparent animate-gradient-move-analytics">
+                  Analytics
+                </span>
+                <style jsx>{`
+                  @keyframes bounce-slow {
+                    0%, 100% { transform: translateY(0);}
+                    50% { transform: translateY(-6px);}
+                  }
+                  @keyframes bounce-fast {
+                    0%, 100% { transform: translateY(0);}
+                    50% { transform: translateY(-12px);}
+                  }
+                  .animate-bounce-slow {
+                    animation: bounce-slow 1.6s infinite;
+                  }
+                  .group:hover .animate-bounce-slow {
+                    animation: bounce-fast 0.7s infinite;
+                  }
+                  @keyframes gradient-move-analytics {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                  }
+                  .animate-gradient-move-analytics {
+                    animation: gradient-move-analytics 2.5s ease-in-out infinite;
+                  }
+                `}</style>
               </button>
             </div>
           </div>
@@ -678,13 +739,51 @@ export default function Dashboard() {
           <TabsContent value="calculator">
             <div className="space-y-6">
               <Card className="bg-black/40 backdrop-blur-xl border-white/20">
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="text-white">Attendance Calculator</CardTitle>
-                  <p className="bg-blue-600/80 text-white text-xs mt-2 px-3 py-2 rounded-lg font-semibold shadow-md flex items-center w-fit">
-                    Use the
-                    <span className="inline-block align-middle mx-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-info w-4 h-4 inline"><circle cx="12" cy="12" r="10"></circle><line x1="12" x2="12" y1="16" y2="12"></line><line x1="12" x2="12.01" y1="8" y2="8"></line></svg></span>icon for more help.
-                  </p>
+                  <button
+                    className="flex items-center gap-2 border border-red-400 bg-transparent text-red-400 px-2 py-0.5 rounded-md text-sm font-semibold hover:bg-red-400/10 transition h-7 min-h-0"
+                    onClick={() => setShowCalcInfo(true)}
+                    type="button"
+                  >
+                    {/* Disclaimer Icon: Red triangle with exclamation */}
+                    <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24">
+                      <polygon points="12,3 22,20 2,20" stroke="currentColor" strokeWidth="2" fill="none"/>
+                      <rect x="11" y="10" width="2" height="5" rx="1" fill="currentColor"/>
+                      <rect x="11" y="17" width="2" height="2" rx="1" fill="currentColor"/>
+                    </svg>
+                    <span className="font-semibold text-red-400">Disclaimer</span>
+                  </button>
                 </CardHeader>
+                <Dialog open={showCalcInfo} onOpenChange={setShowCalcInfo}>
+  <DialogContent className="max-w-md bg-black text-white">
+    <DialogHeader>
+      <DialogTitle className="flex items-center gap-2 text-red-400 text-lg">
+        {/* Disclaimer Icon: Red triangle with exclamation */}
+        <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24">
+          <polygon points="12,3 22,20 2,20" stroke="currentColor" strokeWidth="2" fill="none"/>
+          <rect x="11" y="10" width="2" height="5" rx="1" fill="currentColor"/>
+          <rect x="11" y="17" width="2" height="2" rx="1" fill="currentColor"/>
+        </svg>
+        Disclaimer
+      </DialogTitle>
+    </DialogHeader>
+    <div className="text-xs text-white mt-2 leading-relaxed">
+      <b>How the calculator works:</b><br />
+      This calculator <span className="text-red-400 font-semibold">does NOT use the total number of classes for the semester</span>.<br />
+      It only uses the classes that have already happened and are shown in your ERP right now.<br /><br />
+      <span className="text-white/80">
+        So, if your ERP shows 40 classes held, the calculator uses only those 40 for all calculations. It cannot predict or include future classes that are not yet in the ERP.<br /><br />
+        <span className="text-red-300 font-semibold">If you see your attendance percentage, it is based only on the current data, not the full semester plan.</span>
+      </span>
+    </div>
+    <DialogFooter>
+      <Button onClick={() => setShowCalcInfo(false)} className="mt-4 w-full bg-white text-black hover:bg-gray-200">
+        Close
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
                 <CardContent>
                   {/* Glowing label above the dropdown */}
                   <div className="mb-2 flex items-center">
@@ -851,4 +950,3 @@ export default function Dashboard() {
     </div>
   );
 }
-

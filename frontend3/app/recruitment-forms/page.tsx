@@ -3,12 +3,7 @@
 import Link from "next/link";
 
 const forms = [
-	{
-		club: "Chaitanya Kreeda",
-		link: "https://docs.google.com/forms/d/e/1FAIpQLScqwCbSMANFLqbBhT_XFWrUAZxLCzXewwGlIm_kkCW2Mk8T3Q/viewform",
-		lastDate: "24-08-2025",
-		eligibility: "Anyone",
-	},
+	
 	
 	{
 		club: "CBIT Developer Student Club",
@@ -37,6 +32,25 @@ const forms = [
 ];
 
 export default function RecruitmentFormsPage() {
+	const today = new Date();
+	today.setHours(0, 0, 0, 0); // Normalize today's date to the start of the day
+
+	const activeForms = forms.filter((form) => {
+		if (form.lastDate.toLowerCase() === "n/a") {
+			return true; // Always show forms with "N/A" as the last date
+		}
+		const dateParts = form.lastDate.split("-");
+		if (dateParts.length !== 3) {
+			return false; // Invalid date format, don't show
+		}
+		const [day, month, year] = dateParts.map(Number);
+		// Note: JavaScript months are 0-indexed (0 for January)
+		const lastDate = new Date(year, month - 1, day);
+
+		// To make the last date inclusive, we can compare if it's greater than or equal to today
+		return lastDate >= today;
+	});
+
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
 			{/* Header */}
@@ -87,7 +101,7 @@ export default function RecruitmentFormsPage() {
 			</div>
 			{/* Table or No Recruitment Message */}
 			<div className="max-w-5xl mx-auto py-10 px-2 sm:px-4">
-				{forms.length === 0 ? (
+				{activeForms.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-20">
 						<svg width="64" height="64" fill="none" className="mb-6">
 							<circle
@@ -132,7 +146,7 @@ export default function RecruitmentFormsPage() {
 								</tr>
 							</thead>
 							<tbody>
-								{forms.map((form, idx) => (
+								{activeForms.map((form, idx) => (
 									<tr key={idx} className="border-t border-[#6441a5]">
 										<td className="py-3 px-4 text-white border-r border-[#6441a5] whitespace-nowrap">
 											{form.club}

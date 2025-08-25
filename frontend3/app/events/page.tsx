@@ -26,6 +26,12 @@ type Event = {
 
 export default function EventsPage() {
 	const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+	const [search, setSearch] = useState("");
+	const filteredEvents = events.filter(
+		(event) =>
+			event.name.toLowerCase().includes(search.toLowerCase()) ||
+			event.club.toLowerCase().includes(search.toLowerCase())
+		);
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -92,9 +98,38 @@ export default function EventsPage() {
 					</Link>
 				</div>
 			</div>
+			{/* Search and Info Bar */}
+			<div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 max-w-5xl mx-auto mt-8 px-2 sm:px-0">
+				{/* Search Bar */}
+				<input
+					type="text"
+					placeholder="Search events..."
+					value={search}
+					onChange={e => setSearch(e.target.value)}
+					className="w-full sm:w-80 px-4 py-2 rounded-lg border border-[#6441a5] bg-[#2d2047] text-white focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+				/>
+				{/* Info Button with Tooltip */}
+				<div className="relative group">
+					<button
+						className="flex items-center justify-center w-9 h-9 rounded-full bg-[#2d2047] border border-[#6441a5] text-purple-200 hover:bg-[#3a206b] transition"
+						tabIndex={0}
+						aria-label="Info"
+					>
+						<svg width="22" height="22" fill="none" viewBox="0 0 24 24">
+							<circle cx="12" cy="12" r="10" stroke="#b57aff" strokeWidth="2" />
+							<rect x="11" y="10" width="2" height="6" rx="1" fill="#b57aff" />
+							<rect x="11" y="7" width="2" height="2" rx="1" fill="#b57aff" />
+						</svg>
+					</button>
+					{/* Tooltip */}
+					<div className="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-black/90 text-white text-xs rounded-lg px-3 py-2 opacity-0 group-hover:opacity-100 pointer-events-none transition z-10">
+						Click on the event poster for full view!
+					</div>
+				</div>
+			</div>
 			{/* Events Grid */}
 			<div className="max-w-5xl mx-auto py-10 px-2 sm:px-4">
-				{events.length === 0 ? (
+				{filteredEvents.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-20">
 						{/* Optional: Add an illustration or icon here */}
 						<svg width="64" height="64" fill="none" className="mb-6">
@@ -121,7 +156,7 @@ export default function EventsPage() {
 					</div>
 				) : (
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-						{events.map((event, idx) => (
+						{filteredEvents.map((event, idx) => (
 							<div
 								key={idx}
 								className="bg-[#2d2047] rounded-xl shadow-lg border border-[#6441a5] flex flex-col items-center p-4 cursor-pointer transition hover:scale-105"
