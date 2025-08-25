@@ -48,13 +48,13 @@ export default function LoginPage() {
         
         if (response.status === 500) {
           if (errorText.includes("Python script error")) {
-            errorMessage = "Invalid username or password. Please try again."
+            errorMessage = "Invalid credentials or Server is down."
           } else {
             errorMessage = "System error. Please try again later."
           }
         } else if (response.status === 400) {
           if (errorText.includes("No output from Python script")) {
-            errorMessage = "Invalid username or password. Please try again."
+            errorMessage = "Invalid credentials or Server is down."
           } else if (errorText.includes("Invalid data format")) {
             errorMessage = "System error. Please try again later."
           } else {
