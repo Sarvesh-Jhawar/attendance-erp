@@ -95,7 +95,7 @@ export default function AboutPage() {
             </Link>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
-            <span className="font-semibold text-white">Backend Developer:</span>
+            <span className="font-semibold text-white">Backend Developer & Team Lead:</span>
             <span className="font-semibold text-purple-300 sm:ml-2">Sarvesh Jhawar</span>
             <Link href="https://www.linkedin.com/in/sarvesh-jhawar-515bb42b2/" target="_blank" rel="noopener noreferrer" className="mt-2 sm:mt-0 sm:ml-2">
               <svg
