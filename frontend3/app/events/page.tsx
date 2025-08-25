@@ -7,7 +7,7 @@ import { useState } from "react";
 const events = [
 	 {
 	 	club: "Chaitanya Spandana",
-		poster: "/images/Ganeshotsav.jpg",
+		poster: "/images/Ganeshotsav.JPG",
 	 	name: "Ganeshotsav 2025",
 	 },
 	 {
