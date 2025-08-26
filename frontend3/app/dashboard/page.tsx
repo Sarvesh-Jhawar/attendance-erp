@@ -773,8 +773,7 @@ export default function Dashboard() {
       This calculator <span className="text-red-400 font-semibold">does NOT use the total number of classes for the semester</span>.<br />
       It only uses the classes that have already happened and are shown in your ERP right now.<br /><br />
       <span className="text-white/80">
-        So, if your ERP shows 40 classes held, the calculator uses only those 40 for all calculations. It cannot predict or include future classes that are not yet in the ERP.<br /><br />
-        <span className="text-red-300 font-semibold">If you see your attendance percentage, it is based only on the current data, not the full semester plan.</span>
+        Because of this, the 'Must Attend' number might sometimes seem impossibly high. This is because the calculation is based only on past data and doesn't know how many classes are remaining in the semester.
       </span>
     </div>
     <DialogFooter>

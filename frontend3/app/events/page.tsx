@@ -165,7 +165,7 @@ export default function EventsPage() {
 								<img
 									src={event.poster}
 									alt={event.name}
-									className="w-full h-64 object-contain bg-white rounded-lg mb-4"
+									className="w-full h-64 object-contain bg-slate-800 rounded-lg mb-4"
 								/>
 								<h2 className="text-lg font-bold text-purple-300 mb-2 text-center">
 									{event.club}
@@ -190,7 +190,7 @@ export default function EventsPage() {
 						<img
 							src={selectedEvent.poster}
 							alt={selectedEvent.name}
-							className="max-w-[90vw] max-h-[80vh] rounded-xl shadow-2xl object-contain bg-white"
+							className="max-w-[90vw] max-h-[80vh] rounded-xl shadow-2xl object-contain bg-slate-800"
 						/>
 						<h2 className="mt-6 text-2xl font-bold text-purple-300 text-center">
 							{selectedEvent.club}
