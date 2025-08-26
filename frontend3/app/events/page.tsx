@@ -1,19 +1,29 @@
 "use client";
 
 import Link from "next/link";
+import { parse } from "date-fns";
 import { useState } from "react";
 
 // Future events can be added here
+// Format: dd-mm-yyyy or "n/a"
 const events = [
 	 {
 	 	club: "Chaitanya Spandana",
 		poster: "/images/Ganeshotsav.JPG",
-	 	name: "Ganeshotsav 2025",
+		name: "Ganeshotsav 2025",
+		date: "26-08-2025", 
 	 },
 	 {
 	 	club: "Praheti Racing SAE CBIT",
 		poster: "/images/praheti.png",
-	 	name: "Eight-Day International Workshop",
+		name: "Eight-Day International Workshop",
+		date: "31-08-2025",
+	 },
+	 {
+        club: "VMEDHA",
+		poster: "/images/VmedhaEvent.jpg",
+		name: "Eight-Day International Workshop",
+		date: "28-08-2025",
 	 },
 ];
 
@@ -21,16 +31,30 @@ type Event = {
   club: string;
   poster: string;
   name: string;
+  date: string;
   // add other fields if needed
 };
 
 export default function EventsPage() {
 	const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 	const [search, setSearch] = useState("");
-	const filteredEvents = events.filter(
-		(event) =>
-			event.name.toLowerCase().includes(search.toLowerCase()) ||
-			event.club.toLowerCase().includes(search.toLowerCase())
+
+	const today = new Date();
+	today.setHours(0, 0, 0, 0);
+
+	const filteredEvents = events
+		.filter((event) => {
+			if (event.date.toLowerCase() === "n/a") {
+				return true;
+			}
+			const eventDate = parse(event.date, "dd-MM-yyyy", new Date());
+			// parse returns Invalid Date on failure, and (Invalid Date >= today) is false.
+			return eventDate >= today;
+		})
+		.filter(
+			(event) =>
+				event.name.toLowerCase().includes(search.toLowerCase()) ||
+				event.club.toLowerCase().includes(search.toLowerCase())
 		);
 
 	return (
