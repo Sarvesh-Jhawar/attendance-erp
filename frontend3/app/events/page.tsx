@@ -22,7 +22,7 @@ const events = [
 	 {
         club: "VMEDHA",
 		poster: "/images/VmedhaEvent.jpg",
-		name: "Eight-Day International Workshop",
+		name: "Guest Lecture on Vision LLMs and real world use cases",
 		date: "28-08-2025",
 	 },
 ];
