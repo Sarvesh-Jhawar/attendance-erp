@@ -409,7 +409,7 @@ export default function Dashboard() {
                         Plan Your Attendance →
                       </Button>
                       <span className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-1.5 py-0.5 rounded-full shadow-lg animate-pulse">
-                        NEW
+                        Click Here
                       </span>
                     </div>
                   </div>
@@ -658,21 +658,34 @@ export default function Dashboard() {
                     Track your daily attendance across all periods
                   </CardDescription>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Label htmlFor="datewise-filter" className="text-white/90 text-sm">
-                    Filter:
-                  </Label>
-                  <Select value={datewiseFilter} onValueChange={setDatewiseFilter}>
-                    <SelectTrigger className="w-32 sm:w-40 bg-white/10 border-white/20 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                                         <SelectContent className="bg-black/80 backdrop-blur-xl border-white/20">
+                <div className="flex items-center space-x-2 sm:space-x-4">
+                  <div className="relative">
+                    <Button
+                      onClick={() => router.push("/mark-your-attendance")}
+                      className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-purple-600 text-white border-blue-400 hover:from-blue-600 hover:to-purple-700 text-sm px-3 h-7"
+                    >
+                      Mark Your Attendance →
+                    </Button>
+                    <span className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-2 py-0.5 rounded-full shadow-lg animate-pulse">
+                      New
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor="datewise-filter" className="text-white/90 text-sm">
+                      Filter:
+                    </Label>
+                    <Select value={datewiseFilter} onValueChange={setDatewiseFilter}>
+                      <SelectTrigger className="w-32 sm:w-40 bg-white/10 border-white/20 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black/80 backdrop-blur-xl border-white/20">
                        <SelectItem value="last5" className="text-white">Last 5 Days</SelectItem>
                        <SelectItem value="last10" className="text-white">Last 10 Days</SelectItem>
                        <SelectItem value="last20" className="text-white">Last 20 Days</SelectItem>
                        <SelectItem value="all" className="text-white">All</SelectItem>
                      </SelectContent>
-                  </Select>
+                    </Select>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="px-2 sm:px-6">
@@ -739,7 +752,7 @@ export default function Dashboard() {
           <TabsContent value="calculator">
             <div className="space-y-6">
               <Card className="bg-black/40 backdrop-blur-xl border-white/20">
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader className="flex flex-row items-center justify-between p-6 pb-4">
                   <CardTitle className="text-white">Attendance Calculator</CardTitle>
                   <button
                     className="flex items-center gap-2 border border-red-400 bg-transparent text-red-400 px-2 py-0.5 rounded-md text-sm font-semibold hover:bg-red-400/10 transition h-7 min-h-0"
@@ -784,30 +797,32 @@ export default function Dashboard() {
   </DialogContent>
 </Dialog>
                 <CardContent>
-                  {/* Glowing label above the dropdown */}
-                  <div className="mb-2 flex items-center">
-                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg animate-pulse select-none" style={{ boxShadow: '0 0 8px 2px #a21caf55' }}>
+                  <div className="w-full sm:flex-1">
+                    {/* Glowing label above the dropdown */}
+                    <div className="mb-2 flex items-center">
+                      <span className="px-3 py-1 rounded-full text-sm font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg animate-pulse select-none" style={{ boxShadow: '0 0 8px 2px #a21caf55' }}>
+                        Select Subject / Overall
+                      </span>
+                    </div>
+                    <Label htmlFor="subject-select" className="text-white/90 mb-2 block sr-only">
                       Select Subject / Overall
-                    </span>
-                  </div>
-                  <Label htmlFor="subject-select" className="text-white/90 mb-2 block sr-only">
-                    Select Subject / Overall
-                  </Label>
-                  <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                    <SelectTrigger className="bg-white/10 border-2 border-blue-400 focus:border-purple-500 shadow-lg text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-black/80 backdrop-blur-xl border-white/20">
-                      <SelectItem value="overall" className="text-white">
-                        Overall
-                      </SelectItem>
-                      {attendanceData.filter(item => item.subject && item.subject.trim() !== "" && item.subject.trim() !== "-").map((item, index) => (
-                        <SelectItem key={index} value={index.toString()} className="text-white">
-                          {item.subject}
+                    </Label>
+                    <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                      <SelectTrigger className="bg-white/10 border-2 border-blue-400 focus:border-purple-500 shadow-lg text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black/80 backdrop-blur-xl border-white/20">
+                        <SelectItem value="overall" className="text-white">
+                          Overall
                         </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                        {attendanceData.filter(item => item.subject && item.subject.trim() !== "" && item.subject.trim() !== "-").map((item, index) => (
+                          <SelectItem key={index} value={index.toString()} className="text-white">
+                            {item.subject}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
                   {/* --- Summary Table for Selected Subject/Overall --- */}
                   <div className="my-4">

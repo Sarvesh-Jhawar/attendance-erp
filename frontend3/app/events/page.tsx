@@ -186,11 +186,23 @@ export default function EventsPage() {
 								className="bg-[#2d2047] rounded-xl shadow-lg border border-[#6441a5] flex flex-col items-center p-4 cursor-pointer transition hover:scale-105"
 								onClick={() => setSelectedEvent(event)}
 							>
-								<img
-									src={event.poster}
-									alt={event.name}
-									className="w-full h-64 object-contain bg-slate-800 rounded-lg mb-4"
-								/>
+								{/* Blurred background behind poster */}
+								<div className="relative w-full h-64 mb-4 flex items-center justify-center">
+									<div
+										className="absolute inset-0 rounded-lg"
+										style={{
+											background: `url(${event.poster}) center/cover no-repeat`,
+											filter: "blur(12px) brightness(0.7)",
+											zIndex: 1,
+										}}
+									/>
+									<img
+										src={event.poster}
+										alt={event.name}
+										className="relative w-full h-64 object-contain rounded-lg z-10"
+										style={{ background: "rgba(44, 33, 71, 0.7)" }}
+									/>
+								</div>
 								<h2 className="text-lg font-bold text-purple-300 mb-2 text-center">
 									{event.club}
 								</h2>
