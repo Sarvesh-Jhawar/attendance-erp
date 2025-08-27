@@ -75,5 +75,19 @@ Feel free to raise issues, suggest features, or share improvements via **GitHub 
 
 ---
 
+## License
+
+Copyright (c) 2025 [CBIT Attendance Analyzer]
+
+All rights reserved.
+
+This software and associated documentation files (the "Software") are proprietary and confidential.  
+Unauthorized copying, distribution, modification, merging, publishing, sublicensing, selling, or use of the Software, in whole or in part, is strictly prohibited without prior written permission from the copyright holder.
+
+The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement.  
+In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in an action of contract, tort or otherwise, arising from, out of, or in connection with the Software or the use or other dealings in the Software.
+
+For permission requests, please contact: [projectfeedback86@gmail.com]
+
 ## 🏷 Tags
 `#AttendanceTracker` `#ERP` `#CBIT` `#StudentLife` `#WebDevelopment` `#ReactJS` `#SpringBoot` `#Java` `#Analytics` `#EdTech`

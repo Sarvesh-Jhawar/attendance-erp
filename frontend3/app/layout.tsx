@@ -24,7 +24,7 @@ export default function RootLayout({
       <head>
         <title>CBIT ERP Attendance Analyzer | CBIT Hyderabad College Attendance & Bees Login Tool</title>
         <meta name="description" content="Easily track, analyze, and manage your CBIT Hyderabad attendance with the CBIT ERP Attendance Analyzer. Designed for CBIT students and faculty, this tool simplifies ERP login, attendance tracking, and analytics. Secure, fast, and made for CBIT Hyderabad." />
-        <meta name="keywords" content="CBIT ERP, CBIT ERP Login, CBIT Attendance, CBIT Hyderabad, CBIT Bees Login, CBIT College Attendance, CBIT ERP Portal, College Attendance Analyzer, CBIT Students, CBIT Faculty, Attendance Tracker, Hyderabad College ERP, Bees Login, CBIT Portal, CBIT Attendance Analyzer, cbit org in, cbit aec, cbit campus, cbit ac, erp cbit org, cbit results, cbit edu, erp portal login, cbit department, cbit it department, cbit cse department" />
+        <meta name="keywords" content="CBIT ERP, CBIT ERP Login, CBIT Attendance, CBIT Hyderabad, CBIT Bees Login, CBIT College Attendance, CBIT ERP Portal, College Attendance Analyzer, CBIT Students, CBIT Faculty, Attendance Tracker, Hyderabad College ERP, Bees Login, CBIT Portal, CBIT Attendance Analyzer, cbit org in, cbit aec, cbit campus, cbit ac, erp cbit org, cbit results, cbit edu, erp portal login, cbit department, cbit it department, cbit clubs , cbit clubs recuirment form, events cbit " />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://cbit-erp-attendance-analyzer.vercel.app/" />
         <meta property="og:title" content="CBIT ERP Attendance Analyzer | CBIT Hyderabad College Attendance & Bees Login Tool" />

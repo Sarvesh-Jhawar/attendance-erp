@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, BarChart3, TrendingUp, Target, Award } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { ChartContainer } from "@/components/ui/chart"
+import Link from "next/link";
 
 interface AttendanceData {
   sn: number
@@ -185,26 +186,49 @@ export default function Analytics() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Header */}
-      <div className="border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-50 w-full">
-        <div className="w-full px-2 sm:px-4 lg:px-6">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.push("/dashboard")}
-                className="text-white hover:bg-white/10 px-2 sm:px-3"
-              >
-                <ArrowLeft className="w-4 h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Back to Dashboard</span>
-                <span className="sm:hidden">Back</span>
-              </Button>
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Analytics
-              </h1>
-            </div>
-          </div>
-        </div>
+      <div
+        className="flex items-center px-4 py-4 sm:px-8"
+        style={{
+          background: "linear-gradient(90deg, #18132a 0%, #3a206b 100%)",
+          borderBottom: "1.5px solid #6441a5",
+        }}
+      >
+        <Link
+          href="/dashboard"
+          className="flex items-center font-medium text-white text-base sm:text-lg"
+          style={{ textDecoration: "none" }}
+        >
+          <span className="flex items-center mr-2">
+            {/* Left arrow icon */}
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              style={{ marginRight: "0.2rem" }}
+            >
+              <path
+                d="M15 19l-7-7 7-7"
+                stroke="#8ab4f8"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            Back
+          </span>
+        </Link>
+        <span
+          className="ml-4 text-xl sm:text-3xl font-bold"
+          style={{
+            letterSpacing: "1px",
+            background: "linear-gradient(90deg, #5ea2ef 0%, #b57aff 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}
+        >
+          Analytics
+        </span>
       </div>
 
       <div className="w-full px-2 sm:px-4 lg:px-6 py-4 sm:py-6">

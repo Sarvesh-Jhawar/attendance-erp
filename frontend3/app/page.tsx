@@ -48,13 +48,13 @@ export default function LoginPage() {
         
         if (response.status === 500) {
           if (errorText.includes("Python script error")) {
-            errorMessage = "Invalid username or password. Please try again."
+            errorMessage = "Invalid credentials or Server is down."
           } else {
             errorMessage = "System error. Please try again later."
           }
         } else if (response.status === 400) {
           if (errorText.includes("No output from Python script")) {
-            errorMessage = "Invalid username or password. Please try again."
+            errorMessage = "Invalid credentials or Server is down."
           } else if (errorText.includes("Invalid data format")) {
             errorMessage = "System error. Please try again later."
           } else {
@@ -70,9 +70,9 @@ export default function LoginPage() {
 
       // Parse the response data
       const rawData = await response.json();
-      console.log("Raw data received:", rawData);
-      console.log("Datewise attendance data:", rawData.datewiseAttendance);
-      console.log("Datewise attendance data (snake_case):", rawData.datewise_attendance);
+      // console.log("Raw data received:", rawData);
+      // console.log("Datewise attendance data:", rawData.datewiseAttendance);
+      // console.log("Datewise attendance data (snake_case):", rawData.datewise_attendance);
       
       const attendanceArray = rawData.attendance || [];
       const timetableArray = rawData.todayTimetable || rawData.today_timetable || [];
@@ -82,7 +82,7 @@ export default function LoginPage() {
       let validTimetableArray = [];
       if (Array.isArray(timetableArray)) {
         validTimetableArray = timetableArray;
-        console.log("Valid timetable array:", validTimetableArray);
+      //  console.log("Valid timetable array:", validTimetableArray);
       } else if (timetableArray && typeof timetableArray === 'object' && timetableArray.error) {
         // If it's an error object, use empty array
         console.log("Timetable error:", timetableArray.error);
@@ -97,7 +97,7 @@ export default function LoginPage() {
       let validDatewiseAttendanceArray = [];
       if (Array.isArray(datewiseAttendanceArray)) {
         validDatewiseAttendanceArray = datewiseAttendanceArray;
-        console.log("Valid datewise attendance array:", validDatewiseAttendanceArray);
+      //  console.log("Valid datewise attendance array:", validDatewiseAttendanceArray);
       } else if (datewiseAttendanceArray && typeof datewiseAttendanceArray === 'object' && datewiseAttendanceArray.error) {
         // If it's an error object, use empty array
         console.log("Datewise attendance error:", datewiseAttendanceArray.error);
