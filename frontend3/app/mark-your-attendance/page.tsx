@@ -287,7 +287,7 @@ export default function DatewiseAttendancePage() {
 									<Button
 										variant="ghost"
 										size="icon"
-										className="rounded-full text-blue-300 hover:text-white hover:bg-blue-500/20 h-9 w-9 animate-pulse shadow-md shadow-blue-500/40"
+										className="glowing-info-button rounded-full text-white h-9 w-9"
 									>
 										<svg
 											xmlns="http://www.w3.org/2000/svg"
@@ -591,6 +591,31 @@ export default function DatewiseAttendancePage() {
 					</CardContent>
 				</Card>
 			</div>
+			<style jsx>{`
+				.glowing-info-button {
+					border: none;
+					color: white;
+					background: linear-gradient(145deg, #5ea2ef, #b57aff);
+					animation: button-glow 4s ease-in-out infinite;
+					transition: transform 0.2s ease-in-out;
+				}
+
+				.glowing-info-button:hover {
+					transform: scale(1.05);
+				}
+
+				@keyframes button-glow {
+					0% {
+						box-shadow: 0 0 5px #5ea2ef, 0 0 10px #b57aff;
+					}
+					50% {
+						box-shadow: 0 0 10px #b57aff, 0 0 20px #5ea2ef;
+					}
+					100% {
+						box-shadow: 0 0 5px #5ea2ef, 0 0 10px #b57aff;
+					}
+				}
+			`}</style>
 		</div>
 	);
 }
