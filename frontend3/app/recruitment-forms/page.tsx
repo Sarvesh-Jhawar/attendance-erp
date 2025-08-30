@@ -7,10 +7,10 @@ const forms = [
 	
 	
 	{
-		club: "CBIT Developer Student Club",
-		link: "https://docs.google.com/forms/d/e/1FAIpQLSckb7r8h07usWQHHhq8L9LopY-4h0fLNN925gUkMrLvkhUc4g/viewform",
-		lastDate: "27-08-2025",
-		eligibility: "2 & 3 year",
+		club: "VMedha ",
+		link: "https://docs.google.com/forms/d/e/1FAIpQLSegPmHUj_XA_aN5ECk5d5cLN3bF4QpzrZswLMLcSxOyPKGJGA/viewform",
+		lastDate: "N/A",
+		eligibility: "2 year",
 	},
 	{
 		club: "CBIT FC",
