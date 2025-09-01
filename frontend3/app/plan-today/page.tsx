@@ -118,49 +118,26 @@ export default function PlanToday() {
     }
   }, []) // Removed attendanceData dependency
 
-  const calculateNewPercentage = (subject: string, willAttend: boolean, isLocked: boolean) => {
-    const att = attendanceData.find(a => a.subject === subject)
-    if (!att) return 0
-    
-    // If period is locked (already marked), return original percentage
-    if (isLocked) {
-      return att.percentage
-    }
-    
-    const { held, attended } = att
-    
-    // Handle case where no classes have been held yet (both held and attended are 0)
-    if (held === 0 && attended === 0) {
-      // If this is the first class and student will attend, it becomes 100%
-      // If student won't attend, it becomes 0%
-      const newPercentage = willAttend ? 100 : 0
-      
-      console.log(`Subject: ${subject.split(':')[0].trim()}`)
-      console.log(`Current: ${attended}/${held} = ${att.percentage}% (No classes held yet)`)
-      console.log(`Will Attend: ${willAttend}`)
-      console.log(`New: ${willAttend ? 1 : 0}/1 = ${newPercentage}%`)
-      console.log(`Change: ${newPercentage - att.percentage}%`)
-      
-      return newPercentage
-    }
-    
-    // For existing subjects with classes already held
-    // For absent: attended stays same, held increases by 1
-    // For present: both attended and held increase by 1
-    const newAttended = willAttend ? attended + 1 : attended
-    const newHeld = held + 1
-    
-    // Calculate new percentage
-    const newPercentage = newHeld === 0 ? 0 : (newAttended / newHeld) * 100
-    
-    console.log(`Subject: ${subject.split(':')[0].trim()}`)
-    console.log(`Current: ${attended}/${held} = ${att.percentage}%`)
-    console.log(`Will Attend: ${willAttend}`)
-    console.log(`New: ${newAttended}/${newHeld} = ${newPercentage}%`)
-    console.log(`Change: ${newPercentage - att.percentage}%`)
-    
-    return newPercentage
-  }
+  const calculateNewPercentage = (subject: string, _willAttend: boolean, _isLocked: boolean) => {
+  const att = attendanceData.find(a => a.subject === subject)
+  if (!att) return 0
+
+  // Count unlocked periods of this subject
+  const subjectPeriods = periodPlans.filter(p => p.subject === subject && !p.isLocked)
+
+  // How many of these are marked as attending
+  const willAttendCount = subjectPeriods.filter(p => p.willAttend).length
+  const totalCount = subjectPeriods.length
+
+  // Base numbers from attendance data
+  const { held, attended } = att
+
+  const newAttended = attended + willAttendCount
+  const newHeld = held + totalCount
+
+  return newHeld === 0 ? 0 : (newAttended / newHeld) * 100
+}
+
 
   const handlePeriodToggle = (index: number, willAttend: boolean) => {
     setPeriodPlans(prev => {
