@@ -406,7 +406,7 @@ export default function Dashboard() {
                         onClick={() => router.push("/plan-today")}
                         className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-blue-400 hover:from-blue-600 hover:to-purple-700 text-xs sm:text-sm px-2 sm:px-3 h-7 sm:h-8 ml-2"
                       >
-                        Plan Your Attendance →
+                        Plan Your Day →
                       </Button>
                       <span className="absolute -top-2 -right-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-1.5 py-0.5 rounded-full shadow-lg animate-pulse">
                         Click Here

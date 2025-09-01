@@ -274,7 +274,7 @@ export default function PlanToday() {
                 Back
               </Button>
               <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                Plan Your Today
+                Plan Your Day
               </h1>
             </div>
           </div>
