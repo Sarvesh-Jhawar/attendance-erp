@@ -2,26 +2,49 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { GraduationCap, BookOpen, School, Loader2 } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox" 
+import { GraduationCap, BookOpen, School, Loader2, Eye, EyeOff } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useToast } from "@/components/ui/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [termsModalOpen, setTermsModalOpen] = useState(false)
   const [errorModal, setErrorModal] = useState({ open: false, message: "" })
   const router = useRouter()
-  const { toast } = useToast()
+
+  // Load the initial state from localStorage on component mount
+  useEffect(() => {
+    const savedTermsAccepted = localStorage.getItem("termsAccepted") === "true";
+    setTermsAccepted(savedTermsAccepted);
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  // Save the state to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("termsAccepted", String(termsAccepted));
+  }, [termsAccepted]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!termsAccepted) {
+      setErrorModal({
+        open: true,
+        message: "Please accept the Terms and Conditions to log in.",
+      })
+      return
+    }
+
     setIsLoading(true)
 
     try {
@@ -167,15 +190,42 @@ export default function LoginPage() {
   return (
     <>
       <Dialog open={errorModal.open} onOpenChange={open => setErrorModal({ ...errorModal, open })}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Login Error</DialogTitle>
-          </DialogHeader>
-          <div className="py-2">{errorModal.message}</div>
+        <DialogContent className="sm:max-w-md bg-slate-900/80 backdrop-blur-lg border-slate-700 text-slate-200">
+          <div className="py-4 text-center text-slate-200">{errorModal.message}</div>
           <DialogFooter>
             <Button onClick={() => setErrorModal({ ...errorModal, open: false })}>
               OK
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={termsModalOpen} onOpenChange={setTermsModalOpen}>
+        <DialogContent className="sm:max-w-[425px] md:max-w-[600px] max-h-[80vh] overflow-y-auto bg-slate-900/80 backdrop-blur-lg border-slate-700 text-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-blue-400">Terms and Conditions</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-3 text-sm text-slate-300">
+            <p>By using this attendance tracking application, you agree to the following:</p>
+            <h3 className="font-bold text-slate-100 pt-2">1) Educational Purpose Only</h3>
+            <p>This tool is developed solely for students to track and analyze their attendance.</p>
+            <p>It is not intended for official record-keeping or replacing the ERP system.</p>
+            <h3 className="font-bold text-slate-100 pt-2">2) Read-Only Access</h3>
+            <p>The application is strictly read-only.</p>
+            <p>Users cannot modify, manipulate, or overwrite any ERP records.</p>
+            <p>All data shown is fetched directly from the official ERP and displayed as-is.</p>
+            <h3 className="font-bold text-slate-100 pt-2">3) Data Confidentiality</h3>
+            <p>Users are responsible for keeping their login credentials safe.</p>
+            <p>The application does not permanently store, share, or transmit personal data to third parties.</p>
+            <h3 className="font-bold text-slate-100 pt-2">4) Accuracy & Responsibility</h3>
+            <p>While efforts are made to display accurate data, the ERP remains the only official source of truth.</p>
+            <p>Users should always cross-check important information with the official ERP.</p>
+            <h3 className="font-bold text-slate-100 pt-2">5) Limitation of Use</h3>
+            <p>Use of this tool is entirely at your own risk.</p>
+            <p>The developers are not liable for any discrepancies, misuse, or consequences arising from its use.</p>
+            <p className="pt-4 text-xs text-slate-400">Last updated: September 2025</p>
+          </div>
+          <DialogFooter>
+            <Button onClick={() => { setTermsAccepted(true); setTermsModalOpen(false); }} className="bg-blue-500 hover:bg-blue-600">I Agree</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -243,15 +293,46 @@ export default function LoginPage() {
                   <Label htmlFor="password" className="text-white/90 text-sm sm:text-base">
                     Password
                   </Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-blue-400 focus:ring-blue-400/20 h-11 sm:h-12 text-base"
-                    placeholder="Enter your password"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:border-blue-400 focus:ring-blue-400/20 h-11 sm:h-12 text-base pr-10"
+                      placeholder="Enter your password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-white/60 hover:text-white hover:bg-transparent"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="terms" checked={termsAccepted} onCheckedChange={(checked) => setTermsAccepted(checked as boolean)} className="border-white/30 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-400"/>
+                  <label
+                    htmlFor="terms"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-white/80"
+                  >
+                    I agree to the{" "}
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="p-0 h-auto text-blue-400 hover:text-blue-300"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setTermsModalOpen(true);
+                      }}
+                    >
+                      Terms and Conditions
+                    </Button>
+                  </label>
                 </div>
                 <Button
                   type="submit"
