@@ -1,49 +1,39 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import Footer from "@/components/footer"
-import { Analytics } from '@vercel/analytics/next';
-import { Toaster } from "@/components/ui/toaster"
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import Script from "next/script";
+import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Attendance Tracker - Modern Dashboard",
-  description: "Track your attendance with style",
-  generator: 'v0.dev'
-}
+  title: "CBIT Attendance Analyzer",
+  description: "An intuitive attendance analyzer for CBIT students.",
+};
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
       <head>
-        <title>CBIT ERP Attendance Analyzer | CBIT Hyderabad College Attendance & Bees Login Tool</title>
-        <meta name="description" content="Easily track, analyze, and manage your CBIT Hyderabad attendance with the CBIT ERP Attendance Analyzer. Designed for CBIT students and faculty, this tool simplifies ERP login, attendance tracking, and analytics. Secure, fast, and made for CBIT Hyderabad." />
-        <meta name="keywords" content="CBIT ERP, CBIT ERP Login, CBIT Attendance, CBIT Hyderabad, CBIT Bees Login, CBIT College Attendance, CBIT ERP Portal, College Attendance Analyzer, CBIT Students, CBIT Faculty, Attendance Tracker, Hyderabad College ERP, Bees Login, CBIT Portal, CBIT Attendance Analyzer, cbit org in, cbit aec, cbit campus, cbit ac, erp cbit org, cbit results, cbit edu, erp portal login, cbit department, cbit it department, cbit clubs , cbit clubs recuirment form, events cbit " />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://cbit-erp-attendance-analyzer.vercel.app/" />
-        <meta property="og:title" content="CBIT ERP Attendance Analyzer | CBIT Hyderabad College Attendance & Bees Login Tool" />
-        <meta property="og:description" content="Track and analyze your CBIT Hyderabad attendance with the best ERP tool for students and faculty. Fast, secure, and made for CBIT." />
-        <meta property="og:image" content="https://cbit-erp-attendance-analyzer.vercel.app/placeholder-logo.png" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content="https://cbit-erp-attendance-analyzer.vercel.app/" />
-        <meta name="twitter:title" content="CBIT ERP Attendance Analyzer | CBIT Hyderabad College Attendance & Bees Login Tool" />
-        <meta name="twitter:description" content="Track and analyze your CBIT Hyderabad attendance with the best ERP tool for students and faculty. Fast, secure, and made for CBIT." />
-        <meta name="twitter:image" content="https://cbit-erp-attendance-analyzer.vercel.app/placeholder-logo.png" />
+        {/* Google tag (gtag.js) */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-RX9LJREKJG"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-RX9LJREKJG');
+          `}
+        </Script>
       </head>
-      <body className={`${inter.className} flex flex-col min-h-screen`}>
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <Analytics />
-        <Toaster />
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
-  )
+  );
 }

@@ -13,17 +13,20 @@ import {
 	GraduationCap,
 	HeartHandshake,
 	HeartPulse,
+	Leaf,
 	Landmark,
+	Mic,
 	Music,
 	Palette,
 	PenSquare,
 	Rocket,
+	Shield,
 	Theater,
 	TrendingUp,
 	Trophy,
 	Wrench,
 } from "lucide-react";
-import { useState } from "react";
+import { useState } from 'react';
 
 // Add a style tag for the custom animation
 const CustomStyles = () => (
@@ -67,6 +70,11 @@ const iconMap = {
 	Robotics: Bot,
 	Mechanical: Wrench,
 	Safety: Baby,
+	"Womens Safety": Shield,
+	"Film and Theater": Theater,
+	Cybersecurity: Shield,
+	Environmental: Leaf,
+	Podcast: Mic,
 	Healthcare: HeartPulse,
 	Default: ClubIcon,
 };
@@ -121,6 +129,12 @@ const clubs: Club[] = [
 		category: "Service",
 	},
 	{
+		name: "Chaaya - The Film Club",
+		logo: "/logo/chaya.jpg",
+		instagram: "https://www.instagram.com/chaaya.cbit/",
+		category: "Film and Theater",
+	},
+	{
 		name: "CBIT Photography Club",
 		logo: "/logo/phtoclub.jpg",
 		instagram: "https://www.instagram.com/cbitphotoclub/?hl=en",
@@ -133,7 +147,7 @@ const clubs: Club[] = [
 		category: "Creative",
 	},
 	{
-		name: "PRAHETI RACING SAE CBIT",
+		name: "Praheti Racing (SAE CBIT)",
 		logo: "/logo/praheti.jpg",
 		instagram: "https://www.instagram.com/prahetiracing/",
 		category: "Automotive",
@@ -163,6 +177,18 @@ const clubs: Club[] = [
 		category: "Coding",
 	},
 	{
+		name: "Neural Nexus CBIT",
+		logo: "/logo/nexus.jpg",
+		instagram: "https://www.instagram.com/neuralnexuscbit/",
+		category: "Coding",
+	},
+	{
+		name: "Digital Defense Club",
+		logo: "/logo/ddc.jpg",
+		instagram: "https://www.instagram.com/ddc_cbit/",
+		category: "Cybersecurity",
+	},
+	{
 		name: "CBIT Model United Nations",
 		logo: "/logo/mun.jpg",
 		instagram: "https://www.instagram.com/cbitmunhyd/?hl=en",
@@ -181,7 +207,7 @@ const clubs: Club[] = [
 		category: "Literary",
 	},
 	{
-		name: "WRITERS AND POETS CLUB",
+		name: "Writers and Poets Club",
 		logo: "/logo/wpc.jpg",
 		instagram: "https://www.instagram.com/wpc_cbit/n",
 		category: "Literary",
@@ -205,7 +231,7 @@ const clubs: Club[] = [
 		category: "Finance",
 	},
 	{
-		name: "RAMANUJAN MATHS CLUB",
+		name: "Ramanujan Maths Club",
 		logo: "/logo/maths.jpg",
 		instagram: "https://www.instagram.com/rmc.cbit/?hl=en",
 		category: "Academic",
@@ -244,7 +270,7 @@ const clubs: Club[] = [
 		name: "Chaitanya Suraksha",
 		logo: "/logo/suraksha.jpg",
 		instagram: "https://www.instagram.com/chaitanya_suraksha/",
-		category: "Safety",
+		category: "Womens Safety",
 	},
 	{
 		name: "Chaitanya Svaasthya",
@@ -252,9 +278,21 @@ const clubs: Club[] = [
 		instagram: "https://www.instagram.com/chaitanya_suraksha/",
 		category: "Healthcare",
 	},
+	{
+		name: "Chaitanya Parivrita",
+		logo: "/logo/parivartan.jpg",
+		instagram: "https://www.instagram.com/chaitanya_parivrita_/",
+		category: "Environmental",
+	},
+	{
+		name: "CBITALKS - The Podcast Club",
+		logo: "/logo/cbittalks.jpg",
+		instagram: "https://www.instagram.com/cbitalks_/",
+		category: "Podcast",
+	},
     {
-		name: "Football Club CBIT",
-		logo: "/logo/cbitFC.jpg",
+		name: "CBIT Football Club",
+		logo: "/logo/cbitfc.jpg",
 		instagram: "https://www.instagram.com/cbit.fc/",
 		category: "Sports",
 	},
@@ -262,12 +300,23 @@ const clubs: Club[] = [
 ];
 
 export default function ClubsPage() {
-	const [search, setSearch] = useState("");
+	const [search, setSearch] = useState('');
+	const [selectedCategory, setSelectedCategory] = useState<ClubCategory | 'All'>('All');
 
-	const filteredClubs = clubs.filter(club =>
-		club.name.toLowerCase().includes(search.toLowerCase())
-	);
-	
+	const categories: (ClubCategory | 'All')[] = [
+		'All',
+		...Array.from(new Set(clubs.map(club => club.category).filter(Boolean))).sort(),
+	];
+
+	const filteredClubs = clubs.filter(club => {
+		const matchesCategory =
+			selectedCategory === 'All' || club.category === selectedCategory;
+		const matchesSearch = club.name
+			.toLowerCase()
+			.includes(search.toLowerCase());
+		return matchesCategory && matchesSearch;
+	});
+
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
 			<CustomStyles />
@@ -317,14 +366,32 @@ export default function ClubsPage() {
 				</span>
 			</div>
 			{/* Search Bar */}
-			<div className="max-w-5xl mx-auto px-2 sm:px-4 mt-8 mb-6">
+			<div className="max-w-5xl mx-auto flex flex-col sm:flex-row justify-center items-center gap-4 px-2 sm:px-4 mt-8 mb-6">
 				<input
 					type="text"
 					placeholder="Search clubs..."
 					value={search}
 					onChange={e => setSearch(e.target.value)}
-					className="w-full sm:w-1/2 mx-auto block rounded-lg px-4 py-2 bg-[#2d2047] border border-[#6441a5] text-white placeholder:text-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
+					className="w-full sm:w-1/2 rounded-lg px-4 py-2 bg-[#2d2047] border border-[#6441a5] text-white placeholder:text-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 transition"
 				/>
+				<div className="relative w-full sm:w-auto">
+					<select
+						value={selectedCategory}
+						onChange={e =>
+							setSelectedCategory(e.target.value as ClubCategory | 'All')
+						}
+						className="w-full sm:w-48 appearance-none rounded-lg px-4 py-2 bg-[#2d2047] border border-[#6441a5] text-white focus:outline-none focus:ring-2 focus:ring-purple-400 transition cursor-pointer"
+					>
+						{categories.map(category => (
+							<option key={category} value={category} className="bg-[#3a206b] text-white">
+								{category}
+							</option>
+						))}
+					</select>
+					<div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-purple-300">
+						<svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+					</div>
+				</div>
 			</div>
 			{/* Clubs Grid */}
 			<div className="max-w-5xl mx-auto pb-10 px-2 sm:px-4">
