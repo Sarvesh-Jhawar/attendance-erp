@@ -70,7 +70,7 @@ const iconMap = {
 	Robotics: Bot,
 	Mechanical: Wrench,
 	Safety: Baby,
-	"Womens Safety": Shield,
+	"Womens Safety": HeartHandshake,
 	"Film and Theater": Theater,
 	Cybersecurity: Shield,
 	Environmental: Leaf,
