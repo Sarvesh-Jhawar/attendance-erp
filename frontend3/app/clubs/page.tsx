@@ -292,7 +292,7 @@ const clubs: Club[] = [
 	},
     {
 		name: "CBIT Football Club",
-		logo: "/logo/cbitfc.jpg",
+		logo: "/logo/cbitFC.jpg",
 		instagram: "https://www.instagram.com/cbit.fc/",
 		category: "Sports",
 	},
