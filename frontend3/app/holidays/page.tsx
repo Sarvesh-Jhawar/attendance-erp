@@ -1,5 +1,18 @@
 import React from "react";
 import Link from "next/link";
+import { differenceInCalendarDays, startOfToday } from "date-fns";
+
+// Base holiday type (without daysToGo)
+interface BaseHoliday {
+  occasion: string;
+  date: string;
+  day: string;
+}
+
+// Final holiday type (with daysToGo always present)
+interface Holiday extends BaseHoliday {
+  daysToGo: string;
+}
 
 // Helper to convert "DD-MM-YYYY" to Date object
 function parseDate(dateStr: string) {
@@ -7,7 +20,7 @@ function parseDate(dateStr: string) {
   return new Date(year, month - 1, day);
 }
 
-const holidays = [
+const holidays: BaseHoliday[] = [
   { occasion: "Janmastami", date: "16-08-2025", day: "Saturday" },
   { occasion: "Vinayaka Chavithi", date: "27-08-2025", day: "Wednesday" },
   { occasion: "Eid Miladun Nabi", date: "05-09-2025", day: "Friday" },
@@ -20,12 +33,25 @@ const holidays = [
   { occasion: "Following Day of Christmas (Boxing Day)", date: "26-12-2025", day: "Friday" },
 ];
 
-const today = new Date();
-today.setHours(0, 0, 0, 0);
+const today = startOfToday();
 
-const upcomingHolidays = holidays.filter(
-  (holiday) => parseDate(holiday.date) >= today
-);
+const upcomingHolidays: Holiday[] = holidays
+  .map((holiday) => {
+    const holidayDate = parseDate(holiday.date);
+    if (holidayDate < today) return null;
+
+    const daysToGo = differenceInCalendarDays(holidayDate, today);
+    let daysToGoText: string;
+    if (daysToGo === 0) {
+      daysToGoText = "Today";
+    } else if (daysToGo === 1) {
+      daysToGoText = "Tomorrow";
+    } else {
+      daysToGoText = `${daysToGo} days to go`;
+    }
+    return { ...holiday, daysToGo: daysToGoText };
+  })
+  .filter((h): h is Holiday => h !== null); // ✅ no type error now
 
 export default function HolidaysPage() {
   return (
@@ -51,9 +77,20 @@ export default function HolidaysPage() {
           style={{ textDecoration: "none" }}
         >
           <span className="flex items-center mr-2">
-            {/* Left arrow icon */}
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style={{ marginRight: "0.2rem" }}>
-              <path d="M15 19l-7-7 7-7" stroke="#8ab4f8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              style={{ marginRight: "0.2rem" }}
+            >
+              <path
+                d="M15 19l-7-7 7-7"
+                stroke="#8ab4f8"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
             Back
           </span>
@@ -73,47 +110,33 @@ export default function HolidaysPage() {
 
       {/* Responsive Table */}
       <div className="px-2 py-6 sm:px-8">
-        <div className="overflow-x-auto rounded-xl shadow-lg" style={{ background: "rgba(44, 19, 56, 0.85)" }}>
+        <div
+          className="overflow-x-auto rounded-xl shadow-lg"
+          style={{ background: "rgba(44, 19, 56, 0.85)" }}
+        >
           <table className="min-w-[500px] w-full text-left">
             <thead>
               <tr>
-                <th
-                  className="px-4 py-3 text-white font-semibold text-base sm:text-lg whitespace-nowrap"
-                  style={{
-                    border: "1px solid #6441a5",
-                    background: "rgba(100,65,165,0.9)",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  Date
-                </th>
-                <th
-                  className="px-4 py-3 text-white font-semibold text-base sm:text-lg"
-                  style={{
-                    border: "1px solid #6441a5",
-                    background: "rgba(100,65,165,0.9)",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  Occasion
-                </th>
-                <th
-                  className="px-4 py-3 text-white font-semibold text-base sm:text-lg"
-                  style={{
-                    border: "1px solid #6441a5",
-                    background: "rgba(100,65,165,0.9)",
-                    letterSpacing: "0.5px",
-                  }}
-                >
-                  Day
-                </th>
+                {["Date", "Occasion", "Day", "Days to Go"].map((header) => (
+                  <th
+                    key={header}
+                    className="px-4 py-3 text-white font-semibold text-base sm:text-lg whitespace-nowrap"
+                    style={{
+                      border: "1px solid #6441a5",
+                      background: "rgba(100,65,165,0.9)",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    {header}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
               {upcomingHolidays.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={3}
+                    colSpan={4}
                     className="px-4 py-6 text-center text-white text-base"
                     style={{
                       background: "rgba(44, 19, 56, 0.7)",
@@ -128,27 +151,27 @@ export default function HolidaysPage() {
                   <tr key={idx}>
                     <td
                       className="px-4 py-3 text-white text-sm sm:text-base whitespace-nowrap"
-                      style={{
-                        border: "1px solid #6441a5",
-                      }}
+                      style={{ border: "1px solid #6441a5" }}
                     >
                       {holiday.date}
                     </td>
                     <td
                       className="px-4 py-3 text-white text-sm sm:text-base"
-                      style={{
-                        border: "1px solid #6441a5",
-                      }}
+                      style={{ border: "1px solid #6441a5" }}
                     >
                       {holiday.occasion}
                     </td>
                     <td
                       className="px-4 py-3 text-white text-sm sm:text-base"
-                      style={{
-                        border: "1px solid #6441a5",
-                      }}
+                      style={{ border: "1px solid #6441a5" }}
                     >
                       {holiday.day}
+                    </td>
+                    <td
+                      className="px-4 py-3 text-white text-sm sm:text-base"
+                      style={{ border: "1px solid #6441a5" }}
+                    >
+                      {holiday.daysToGo}
                     </td>
                   </tr>
                 ))
