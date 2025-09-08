@@ -33,27 +33,27 @@ const holidays: BaseHoliday[] = [
   { occasion: "Following Day of Christmas (Boxing Day)", date: "26-12-2025", day: "Friday" },
 ];
 
-const today = startOfToday();
-
-const upcomingHolidays: Holiday[] = holidays
-  .map((holiday) => {
-    const holidayDate = parseDate(holiday.date);
-    if (holidayDate < today) return null;
-
-    const daysToGo = differenceInCalendarDays(holidayDate, today);
-    let daysToGoText: string;
-    if (daysToGo === 0) {
-      daysToGoText = "Today";
-    } else if (daysToGo === 1) {
-      daysToGoText = "Tomorrow";
-    } else {
-      daysToGoText = `${daysToGo} days to go`;
-    }
-    return { ...holiday, daysToGo: daysToGoText };
-  })
-  .filter((h): h is Holiday => h !== null); // ✅ no type error now
-
 export default function HolidaysPage() {
+  const today = startOfToday();
+
+  const upcomingHolidays: Holiday[] = holidays
+    .map((holiday) => {
+      const holidayDate = parseDate(holiday.date);
+      if (holidayDate < today) return null;
+
+      const daysToGo = differenceInCalendarDays(holidayDate, today);
+      let daysToGoText: string;
+      if (daysToGo === 0) {
+        daysToGoText = "Today";
+      } else if (daysToGo === 1) {
+        daysToGoText = "Tomorrow";
+      } else {
+        daysToGoText = `${daysToGo} days to go`;
+      }
+      return { ...holiday, daysToGo: daysToGoText };
+    })
+    .filter((h): h is Holiday => h !== null);
+
   return (
     <div
       className="min-h-screen"
