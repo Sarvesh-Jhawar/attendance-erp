@@ -5,7 +5,12 @@ import Link from "next/link";
 
 const forms = [
 	
-	
+	{
+		club: "Chaitanya Srujana ",
+		link: "https://forms.gle/19Ro27Kctc2cuECA7",
+		lastDate: "15-09-2025",
+		eligibility: "2 year",
+	},
 	{
 		club: "VMedha ",
 		link: "https://docs.google.com/forms/d/e/1FAIpQLSegPmHUj_XA_aN5ECk5d5cLN3bF4QpzrZswLMLcSxOyPKGJGA/viewform",

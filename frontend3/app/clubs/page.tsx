@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
 	Baby,
-	BookOpen,
 	Bot,
 	Camera,
 	Car,
@@ -11,6 +10,7 @@ import {
 	Club as ClubIcon,
 	Gamepad2,
 	GraduationCap,
+	HandHeart,
 	HeartHandshake,
 	HeartPulse,
 	Leaf,
@@ -19,6 +19,7 @@ import {
 	Music,
 	Palette,
 	PenSquare,
+	PersonStanding,
 	Rocket,
 	Shield,
 	Theater,
@@ -70,12 +71,13 @@ const iconMap = {
 	Robotics: Bot,
 	Mechanical: Wrench,
 	Safety: Baby,
-	"Womens Safety": HeartHandshake,
+	"Womens Safety": HandHeart,
 	"Film and Theater": Theater,
 	Cybersecurity: Shield,
 	Environmental: Leaf,
 	Podcast: Mic,
 	Healthcare: HeartPulse,
+	Dance: PersonStanding,
 	Default: ClubIcon,
 };
 
@@ -183,6 +185,18 @@ const clubs: Club[] = [
 		category: "Coding",
 	},
 	{
+		name: "VMEDHA",
+		logo: "/logo/vmedha.jpg",
+		instagram: "https://www.instagram.com/cbit.vmedha/?hl=en",
+		category: "Coding",
+	},
+	{
+		name: "IEEE-CBIT",
+		logo: "/logo/ieee.jpg",
+		instagram: "https://www.instagram.com/ieee_cbit/?hl=en",
+		category: "Coding",
+	},
+	{
 		name: "Digital Defense Club",
 		logo: "/logo/ddc.jpg",
 		instagram: "https://www.instagram.com/ddc_cbit/",
@@ -204,6 +218,12 @@ const clubs: Club[] = [
 		name: "Toastmasters CBIT",
 		logo: "/logo/toastmaster.jpg",
 		instagram: "https://www.instagram.com/tmcbit/?hl=en",
+		category: "Literary",
+	},
+	{
+		name: "Transcendent",
+		logo: "/logo/transcendent.jpg",
+		instagram: "https://www.instagram.com/transcendent.cbit/",
 		category: "Literary",
 	},
 	{
@@ -249,22 +269,10 @@ const clubs: Club[] = [
 		category: "Robotics",
 	},
 	{
-		name: "IEEE-CBIT",
-		logo: "/logo/ieee.jpg",
-		instagram: "https://www.instagram.com/ieee_cbit/?hl=en",
-		category: "Coding",
-	},
-	{
 		name: "ASME CBIT",
 		logo: "/logo/asme.jpg",
 		instagram: "https://www.instagram.com/asme.cbit/",
 		category: "Mechanical",
-	},
-	{
-		name: "VMEDHA",
-		logo: "/logo/vmedha.jpg",
-		instagram: "https://www.instagram.com/cbit.vmedha/?hl=en",
-		category: "Coding",
 	},
 	{
 		name: "Chaitanya Suraksha",
@@ -289,6 +297,18 @@ const clubs: Club[] = [
 		logo: "/logo/cbittalks.jpg",
 		instagram: "https://www.instagram.com/cbitalks_/",
 		category: "Podcast",
+	},
+	{
+		name: "United Dance Crew",
+		logo: "/logo/udd.jpg",
+		instagram: "https://www.instagram.com/uniteddancecrew/",
+		category: "Dance",
+	},
+	{
+		name: "Chaitanya Laasya",
+		logo: "/logo/chaitanyalassya.jpg",
+		instagram: "https://www.instagram.com/chaitanya_laasya/",
+		category: "Dance",
 	},
     {
 		name: "CBIT Football Club",

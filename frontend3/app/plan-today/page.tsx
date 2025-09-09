@@ -55,8 +55,8 @@ export default function PlanToday() {
         setAttendanceData(parsedAttendance)
         
         if (Array.isArray(parsedTimetable)) {
-          // Get today's datewise attendance if available
-          let todayAttendance: string[] = []
+          // Get today's datewise attendance if available, keyed by period name (e.g., "P1")
+          const todayAttendance: { [period: string]: string } = {}
           if (storedDatewiseAttendance) {
             try {
               const datewiseData = JSON.parse(storedDatewiseAttendance)
@@ -73,7 +73,13 @@ export default function PlanToday() {
               })
               
               if (todayRecord && todayRecord.periods) {
-                todayAttendance = todayRecord.periods
+                // Map period status array to an object keyed by period name (P1, P2, etc.)
+                parsedTimetable.forEach((p, i) => {
+                  const periodName = p.period.match(/P\d+/i)?.[0]
+                  if (periodName && todayRecord.periods[i]) {
+                    todayAttendance[periodName] = todayRecord.periods[i]
+                  }
+                })
               }
             } catch (error) {
               console.error("Error parsing datewise attendance:", error)
@@ -83,16 +89,16 @@ export default function PlanToday() {
           // Build period plans from timetable and match with attendance data
           const plans = parsedTimetable
             .filter(item => item.subject.trim().toLowerCase() !== 'free')
-            .map((item, index) => {
+            .map((item) => {
               // Find matching attendance data
               const code = item.subject.split('(')[0].split(':')[0].trim().toLowerCase()
               const attMatch = parsedAttendance.find((a: any) => 
                 a.subject.split(':')[0].trim().toLowerCase() === code
               )
               
-              // Check if attendance was already taken for this period today
-              const periodIndex = index // Assuming periods are in order P1, P2, P3, etc.
-              const alreadyAttended = todayAttendance[periodIndex]
+              // Check if attendance was already taken for this period today by matching period name
+              const periodName = item.period.match(/P\d+/i)?.[0]
+              const alreadyAttended = periodName ? todayAttendance[periodName] : undefined
               const isPresent = alreadyAttended === 'P'
               const isAbsent = alreadyAttended === 'A'
               const isLocked = isPresent || isAbsent // Can't change if already marked
