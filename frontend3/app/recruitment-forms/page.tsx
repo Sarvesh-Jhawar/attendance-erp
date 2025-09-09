@@ -9,7 +9,7 @@ const forms = [
 		club: "Chaitanya Srujana ",
 		link: "https://forms.gle/19Ro27Kctc2cuECA7",
 		lastDate: "15-09-2025",
-		eligibility: "2 year",
+		eligibility: "2 year(BE/Btech) & 1 year (MBA & MCA)",
 	},
 	{
 		club: "VMedha ",
