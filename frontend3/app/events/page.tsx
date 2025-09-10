@@ -8,7 +8,7 @@ import { useState } from "react";
 // Format: dd-mm-yyyy or "n/a"
 const events = [
 	 {
-	 	club: "CHAITANYA ASTRA",
+	 	club: "Chaitanya ASTRA",
 		poster: "/images/cosmocon.jpg",
 		name: "COSMOCON-2025",
 		date: "09-10-2025", 
@@ -16,18 +16,13 @@ const events = [
 
 	 },
 	 {
-	 	club: "Praheti Racing SAE CBIT",
-		poster: "/images/praheti.png",
-		name: "Eight-Day International Workshop",
-		date: "31-08-2025",
+	 	club: "CBIT FinFoundry",
+		poster: "/images/Finfoundry.jpg",
+		name: "Recruitment Drive",
+		date: "N/A",
 	 },
-	 {
-        club: "VMEDHA",
-		poster: "/images/VmedhaEvent.jpg",
-		name: "Guest Lecture on Vision LLMs and real world use cases",
-		date: "28-08-2025",
-	 },
-];
+	
+]; 
 
 type Event = {
   club: string;
