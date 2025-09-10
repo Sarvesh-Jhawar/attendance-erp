@@ -19,7 +19,7 @@ const events = [
 	 	club: "CBIT FinFoundry",
 		poster: "/images/Finfoundry.jpg",
 		name: "Recruitment Drive",
-		date: "N/A",
+		date: "12-09-2025",
 	 },
 	
 ]; 

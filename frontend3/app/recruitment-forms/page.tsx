@@ -4,7 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 
 const forms = [
-	
+	{
+		club: "Chaitanya Suraksha",
+		link: "https://docs.google.com/forms/d/e/1FAIpQLSeXVHlbAjLlx5hGSDxKsey-eyCgLyTVpDOrhzgAxTw55W8YPw/viewform?fbclid=PAb21jcAMuaTFleHRuA2FlbQIxMQABpw9cV9SNPUgky5klP_oylzkyRjP2vPYK1v7WaGYflPQSppWqIwXXW3DA1007_aem_sYQR5z-ky7-OtJeR_gN2zQ",
+		lastDate: "18-09-2025",
+		eligibility: "2nd & 3rd year",
+	},
 	{
 		club: "Chaitanya Srujana ",
 		link: "https://forms.gle/19Ro27Kctc2cuECA7",
