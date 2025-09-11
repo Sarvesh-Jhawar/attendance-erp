@@ -178,14 +178,20 @@ export default function RecruitmentFormsPage() {
 											{form.club}
 										</td>
 										<td className="py-3 px-4 border-r border-[#6441a5] whitespace-nowrap">
-											<a
-												href={form.link}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="text-blue-400 underline hover:text-blue-300"
-											>
-												Apply Here
-											</a>
+											{form.link.startsWith("http") ? (
+												<a
+													href={form.link}
+													target="_blank"
+													rel="noopener noreferrer"
+													className="text-blue-400 underline hover:text-blue-300"
+												>
+													Apply Here
+												</a>
+											) : (
+												<span className="text-white">
+													{form.link}
+												</span>
+											)}
 										</td>
 										<td className="py-3 px-4 text-white border-r border-[#6441a5] whitespace-nowrap">
 											{form.eligibility}
