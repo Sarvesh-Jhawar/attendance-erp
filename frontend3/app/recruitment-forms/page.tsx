@@ -17,6 +17,12 @@ const forms = [
 		eligibility: "2nd year (BE/BTech) & 1st year (MBA & MCA)",
 	},
 	{
+		club: "CBIT FinFoundry",
+		link: "Offline-Near Canteen",
+		lastDate: "12-09-2025",
+		eligibility: "2nd & 3rd year",
+	},
+	{
 		club: "VMedha ",
 		link: "https://docs.google.com/forms/d/e/1FAIpQLSegPmHUj_XA_aN5ECk5d5cLN3bF4QpzrZswLMLcSxOyPKGJGA/viewform",
 		lastDate: "N/A",
