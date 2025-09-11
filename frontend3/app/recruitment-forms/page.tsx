@@ -23,6 +23,12 @@ const forms = [
 		eligibility: "2nd & 3rd year",
 	},
 	{
+		club: "IEEE-SSIT",
+		link: "https://forms.gle/SyQevrpgDV5LEiVa8",
+		lastDate: "13-09-2025",
+		eligibility: "Open for All",
+	},
+	{
 		club: "VMedha ",
 		link: "https://docs.google.com/forms/d/e/1FAIpQLSegPmHUj_XA_aN5ECk5d5cLN3bF4QpzrZswLMLcSxOyPKGJGA/viewform",
 		lastDate: "N/A",
