@@ -17,6 +17,12 @@ const forms = [
 		eligibility: "2nd year (BE/BTech) & 1st year (MBA & MCA)",
 	},
 	{
+		club: "Chaitanya Spandana ",
+		link: "https://forms.gle/UPEzvUSw4aBBWjow6",
+		lastDate: "17-09-2025",
+		eligibility: "2nd,3rd & 4th year",
+	},
+	{
 		club: "CBIT FinFoundry",
 		link: "Offline-Near Canteen",
 		lastDate: "12-09-2025",
@@ -54,26 +60,43 @@ const forms = [
 	// },
 ];
 
+const parseDate = (dateString: string): Date | null => {
+	if (dateString.toLowerCase() === "n/a") return null;
+	const parts = dateString.split("-");
+	if (parts.length !== 3) return null;
+	const [day, month, year] = parts.map(Number);
+	const date = new Date(year, month - 1, day);
+	if (isNaN(date.getTime())) return null;
+	return date;
+};
+
 export default function RecruitmentFormsPage() {
 	const [showAddFormInfo, setShowAddFormInfo] = useState(false);
 	const today = new Date();
 	today.setHours(0, 0, 0, 0); // Normalize today's date to the start of the day
 
-	const activeForms = forms.filter((form) => {
-		if (form.lastDate.toLowerCase() === "n/a") {
-			return true; // Always show forms with "N/A" as the last date
-		}
-		const dateParts = form.lastDate.split("-");
-		if (dateParts.length !== 3) {
-			return false; // Invalid date format, don't show
-		}
-		const [day, month, year] = dateParts.map(Number);
-		// Note: JavaScript months are 0-indexed (0 for January)
-		const lastDate = new Date(year, month - 1, day);
+	const activeForms = forms
+		.filter((form) => {
+			const lastDate = parseDate(form.lastDate);
+			if (lastDate === null) {
+				return form.lastDate.toLowerCase() === "n/a"; // Keep "N/A" forms
+			}
+			// To make the last date inclusive, we can compare if it's greater than or equal to today
+			return lastDate >= today;
+		})
+		.sort((a, b) => {
+			const dateA = parseDate(a.lastDate);
+			const dateB = parseDate(b.lastDate);
 
-		// To make the last date inclusive, we can compare if it's greater than or equal to today
-		return lastDate >= today;
-	});
+			if (dateA === null && dateB !== null) return 1;
+			if (dateA !== null && dateB === null) return -1;
+
+			if (dateA && dateB && dateA.getTime() !== dateB.getTime()) {
+				return dateA.getTime() - dateB.getTime();
+			}
+
+			return a.club.localeCompare(b.club);
+		});
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
