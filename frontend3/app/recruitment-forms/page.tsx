@@ -35,12 +35,6 @@ const forms = [
 		eligibility: "Open for All",
 	},
 	{
-		club: "VMedha ",
-		link: "https://docs.google.com/forms/d/e/1FAIpQLSegPmHUj_XA_aN5ECk5d5cLN3bF4QpzrZswLMLcSxOyPKGJGA/viewform",
-		lastDate: "N/A",
-		eligibility: "2nd year",
-	},
-	{
 		club: "CBIT FC",
 		link: "https://docs.google.com/forms/d/e/1FAIpQLSf868IQMbg6u8FQ5HmVnRj4f6UgBPoC8l03C5XYNNeJG321VQ/viewform?usp=header",
 		lastDate: "N/A",
