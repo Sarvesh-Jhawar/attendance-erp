@@ -14,11 +14,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { User, LogOut, BarChart3, Info, TrendingUp, TrendingDown, Calendar, BookOpen, MessageCircle } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import Sidebar from "@/components/sidebar";
+import AdvertisementPopup from "@/components/AdvertisementPopup";
+import StreakTracker from "@/components/StreakTracker";
 
 interface AttendanceData {
   sn: number
@@ -48,6 +50,7 @@ export default function Dashboard() {
   const [selectedSubject, setSelectedSubject] = useState("overall")
   const [showCriteria, setShowCriteria] = useState(false)
   const [username, setUsername] = useState("")
+  const searchParams = useSearchParams();
   const router = useRouter()
   const { toast } = useToast();
   // Remove showCalculatorDialog state
@@ -61,11 +64,24 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showCalcInfo, setShowCalcInfo] = useState(false);
 
+  const [streak, setStreak] = useState(0);
   // TypeScript interface for datewise attendance
   interface DatewiseAttendanceEntry {
     date: string;
     periods: string[];
   }
+
+  // Add new interface for EventData
+  interface EventData {
+    id: number;
+    eventName: string;
+    clubName: string;
+    posterUrl: string;
+    link: string;
+    endDate: string;
+  }
+  const [popupEvent, setPopupEvent] = useState<EventData | null>(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
   useEffect(() => {
     const storedData = localStorage.getItem("attendanceData")
@@ -92,6 +108,32 @@ export default function Dashboard() {
       try {
         const parsedDatewiseAttendance = JSON.parse(storedDatewiseAttendance);
         if (Array.isArray(parsedDatewiseAttendance)) {
+          // Calculate streak
+          const sortedAttendance = [...parsedDatewiseAttendance].sort((a, b) => {
+            const dateA = new Date(a.date.split('(')[0].trim());
+            const dateB = new Date(b.date.split('(')[0].trim());
+            return dateB.getTime() - dateA.getTime();
+          });
+
+          let currentStreak = 0;
+          for (const day of sortedAttendance) {
+            // A day is considered for the streak only if it has marked periods (P or A)
+            const isWorkingDay = day.periods.some((p: string) => p === 'P' || p === 'A');
+            if (!isWorkingDay) {
+              continue; // Skip holidays or days with no classes
+            }
+
+            // A day is perfect if all non-'-' periods are 'P'
+            const isPerfect = day.periods.every((p: string) => p === 'P' || p === '-');
+            if (isPerfect) {
+              currentStreak++;
+            } else {
+              // Streak is broken if there's any absence
+              break;
+            }
+          }
+          setStreak(currentStreak);
+
           setDatewiseAttendance(parsedDatewiseAttendance);
         } else {
           setDatewiseAttendance([]);
@@ -114,15 +156,8 @@ export default function Dashboard() {
     //   console.log("Login Successful");
     //   setTimeout(() => {
     //     localStorage.removeItem("loginSuccess");
-    //   }, 3000);
+    //   }, 3000); // This timeout is removed.
     // }
-    // Instead, just clean up the flag if needed:
-    const loginSuccess = localStorage.getItem("loginSuccess");
-    if (loginSuccess === "true") {
-      setTimeout(() => {
-        localStorage.removeItem("loginSuccess");
-      }, 3000);
-    }
   }, [])
 
   useEffect(() => {
@@ -130,6 +165,44 @@ export default function Dashboard() {
     const timer = setTimeout(() => setShowPlanTodayNote(false), 6000);
     return () => clearTimeout(timer);
   }, []);
+
+  // New useEffect for the popup
+  useEffect(() => {
+    // Check URL for the 'showAd' parameter.
+    const showAd = searchParams.get("showAd");
+
+    // Only show the popup once per session, right after logging in.
+    if (showAd === "true") {
+      // Use router.replace to remove the query parameter from the URL
+      // without adding a new entry to the browser's history.
+      router.replace('/dashboard', { scroll: false });
+
+      const popupTimer = setTimeout(() => {
+        fetch('/events.json')
+          .then(res => res.json())
+          .then((events: EventData[]) => {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Compare dates only
+
+            const validEvent = events.find(event => {
+              const endDate = new Date(event.endDate);
+              return endDate >= today;
+            });
+
+            if (validEvent) {
+              setPopupEvent(validEvent);
+              setIsPopupOpen(true);
+            }
+          })
+          .catch(err => {
+            console.error("Error fetching or processing events.json:", err);
+            alert("Could not load the event advertisement. Please check the console for errors and ensure 'public/events.json' exists and is valid.");
+          });
+      }, 1000); // 1 second delay
+
+      return () => clearTimeout(popupTimer);
+    }
+  }, []); // Run only once on mount
 
   const getMarks = (percentage: number) => {
     if (percentage >= 85) return 5
@@ -217,6 +290,7 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     localStorage.clear()
+    sessionStorage.clear()
     router.push("/")
   }
 
@@ -248,6 +322,15 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      {/* Advertisement Popup */}
+      {popupEvent && (
+        <AdvertisementPopup
+          event={popupEvent}
+          isOpen={isPopupOpen}
+          onClose={() => setIsPopupOpen(false)}
+        />
+      )}
+
       {/* Header */}
       <div className="border-b border-white/10 bg-black/20 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
@@ -278,6 +361,8 @@ export default function Dashboard() {
               </h1>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 overflow-x-auto">
+              {/* Streak Tracker Button */}
+              <StreakTracker streak={streak} />
               {/* Events Button with Animated Text Gradient */}
               <button
                 onClick={() => router.push("/events")}
@@ -365,7 +450,7 @@ export default function Dashboard() {
       </div>
 
       {/* Sidebar overlay */}
-      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+      <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} onLogout={handleLogout} />
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">

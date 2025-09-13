@@ -1,7 +1,7 @@
 import React from "react";
 import Link from "next/link";
 
-export default function Sidebar({ open, setOpen }: { open: boolean, setOpen: (v: boolean) => void }) {
+export default function Sidebar({ open, setOpen, onLogout }: { open: boolean, setOpen: (v: boolean) => void, onLogout: () => void }) {
   return (
     <>
       {/* Sidebar overlay (shows on any screen when open) */}
@@ -53,12 +53,12 @@ export default function Sidebar({ open, setOpen }: { open: boolean, setOpen: (v:
           <hr className="border-dotted border-t-2 border-purple-700 my-1" />
           <Link href="/feedback" className="text-purple-100 hover:text-white transition font-medium">Feedback</Link>
           <hr className="border-dotted border-t-2 border-purple-700 my-1" />
-          <Link
-            href="/"
-            className="text-purple-100 hover:text-white transition font-medium"
+          <button
+            onClick={onLogout}
+            className="text-purple-100 hover:text-white transition font-medium text-left"
           >
             Logout
-          </Link>
+          </button>
         </nav>
       </aside>
       {/* Overlay for when sidebar is open */}

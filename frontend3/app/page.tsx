@@ -7,15 +7,17 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox" 
-import { GraduationCap, BookOpen, School, Loader2, Eye, EyeOff } from "lucide-react"
+import { Checkbox } from "@/components/ui/checkbox"
+import Loader from "@/components/Loader"
+import { GraduationCap, BookOpen, School, Loader2, Eye, EyeOff, ShieldX } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 export default function LoginPage() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [loginStatus, setLoginStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [showOverlay, setShowOverlay] = useState(false);
   const [showPassword, setShowPassword] = useState(false)
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [termsModalOpen, setTermsModalOpen] = useState(false)
@@ -33,6 +35,15 @@ export default function LoginPage() {
     localStorage.setItem("termsAccepted", String(termsAccepted));
   }, [termsAccepted]);
 
+  useEffect(() => {
+    if (loginStatus !== 'idle') {
+      const timer = setTimeout(() => setShowOverlay(true), 10);
+      return () => clearTimeout(timer);
+    } else {
+      setShowOverlay(false);
+    }
+  }, [loginStatus]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,7 +56,7 @@ export default function LoginPage() {
       return
     }
 
-    setIsLoading(true)
+    setLoginStatus('loading');
 
     try {
       // Create form data for the Java backend
@@ -87,7 +98,11 @@ export default function LoginPage() {
           errorMessage = "Server error. Please try again later."
         }
         
-        setErrorModal({ open: true, message: errorMessage })
+        setLoginStatus('error');
+        setTimeout(() => {
+          setLoginStatus('idle');
+          setErrorModal({ open: true, message: errorMessage });
+        }, 1500);
         return
       }
 
@@ -161,13 +176,12 @@ export default function LoginPage() {
 
       // Store user data
       localStorage.setItem("bunk_username", username);
-      localStorage.setItem("loginSuccess", "true");
       localStorage.setItem("attendanceData", JSON.stringify(attendanceData));
       localStorage.setItem("todayTimetable", JSON.stringify(validTimetableArray));
       localStorage.setItem("datewiseAttendance", JSON.stringify(validDatewiseAttendanceArray));
 
       // Navigate to dashboard
-      router.push("/dashboard");
+      router.push("/dashboard?showAd=true");
     } catch (error) {
       
       // Handle network/connection errors
@@ -181,14 +195,38 @@ export default function LoginPage() {
         }
       }
 
-      setErrorModal({ open: true, message: errorMessage })
-    } finally {
-      setIsLoading(false)
+      setLoginStatus('error');
+      setTimeout(() => {
+        setLoginStatus('idle');
+        setErrorModal({ open: true, message: errorMessage });
+      }, 1500);
     }
   }
 
   return (
     <>
+      {/* Full-screen loader overlay */}
+      {loginStatus !== 'idle' && (
+        <div 
+          className={`fixed inset-0 bg-slate-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-50 transition-opacity duration-300 ${
+            showOverlay ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          {loginStatus === 'loading' && (
+            <>
+              <Loader />
+              <p className="text-white text-xl mt-28 font-semibold animate-pulse">Logging in...</p>
+            </>
+          )}
+          {loginStatus === 'error' && (
+            <div className="text-center">
+              <ShieldX className="w-24 h-24 text-red-500 mx-auto animate-drop-and-shake" />
+              <p className="text-white text-xl mt-4 font-semibold">Login Failed</p>
+            </div>
+          )}
+        </div>
+      )}
+
       <Dialog open={errorModal.open} onOpenChange={open => setErrorModal({ ...errorModal, open })}>
         <DialogContent className="sm:max-w-md bg-slate-900/80 backdrop-blur-lg border-slate-700 text-slate-200">
           <div className="py-4 text-center text-slate-200">{errorModal.message}</div>
@@ -337,9 +375,9 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold py-3 h-12 sm:h-14 text-base sm:text-lg transition-all duration-300 transform hover:scale-105 active:scale-95"
-                  disabled={isLoading}
+                  disabled={loginStatus !== 'idle'}
                 >
-                  {isLoading ? (
+                  {loginStatus === 'loading' ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Logging in...
@@ -359,6 +397,30 @@ export default function LoginPage() {
           </Card>
         </div>
       </div>
+      <style jsx>{`
+        @keyframes drop-and-shake {
+          0% {
+            transform: translateY(-100px) scale(0.5);
+            opacity: 0;
+          }
+          30% {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+          }
+          40%, 60% {
+            transform: translateX(8px) rotate(5deg);
+          }
+          50%, 70% {
+            transform: translateX(-8px) rotate(-5deg);
+          }
+          80%, 100% {
+            transform: translateX(0) rotate(0);
+          }
+        }
+        .animate-drop-and-shake {
+          animation: drop-and-shake 1s ease-in-out 1;
+        }
+      `}</style>
     </>
   )
 }

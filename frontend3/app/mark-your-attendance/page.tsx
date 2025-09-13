@@ -265,9 +265,7 @@ export default function DatewiseAttendancePage() {
 					Mark your Attendance
 				</span>
 			</div>
-			<div className="bg-yellow-900/30 border-b border-yellow-400/20 text-center p-2 text-sm text-yellow-300/90">
-				Note: This feature is still under testing.
-			</div>
+			
 			<div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 py-4 sm:py-8">
 				<Card className="bg-black/40 backdrop-blur-xl border-white/20">
 					<CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
