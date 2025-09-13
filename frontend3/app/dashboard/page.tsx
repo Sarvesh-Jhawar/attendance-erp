@@ -1,7 +1,7 @@
 "use client"
 
 import { Label } from "@/components/ui/label"
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 
 import { useEffect, useRef } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -45,7 +45,7 @@ interface AttendanceData {
   attend65?: number
 }
 
-export default function Dashboard() {
+function DashboardContent() {
   const [attendanceData, setAttendanceData] = useState<AttendanceData[]>([])
   const [selectedSubject, setSelectedSubject] = useState("overall")
   const [showCriteria, setShowCriteria] = useState(false)
@@ -202,7 +202,7 @@ export default function Dashboard() {
 
       return () => clearTimeout(popupTimer);
     }
-  }, []); // Run only once on mount
+  }, [searchParams, router]); // Run only once on mount
 
   const getMarks = (percentage: number) => {
     if (percentage >= 85) return 5
@@ -1047,5 +1047,13 @@ export default function Dashboard() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={<div className="flex h-screen w-full items-center justify-center bg-slate-900 text-white text-xl">Loading Dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
