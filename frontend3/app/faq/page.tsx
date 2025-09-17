@@ -3,18 +3,18 @@
 import Link from "next/link";
 
 const faqs = [
-	{
-		q: "How do I check my attendance?",
-		a: "After logging in, your dashboard will display your attendance in real time based on ERP data.",
-	},
-	{
-		q: "How do the calculator feature works?",
-		 a: "The calculator estimates your attendance based only on the classes for which data is currently available. It does not consider the total number of classes scheduled for the entire semester, but rather works with the present attendance records shown in the ERP.",
-	},
-	{
-		q: "How often is the attendance updated?",
-		a: "Attendance is updated daily based on records from the official ERP portal.",
-	},
+	// {
+	// 	q: "How do I check my attendance?",
+	// 	a: "After logging in, your dashboard will display your attendance in real time based on ERP data.",
+	// },
+	// {
+	// 	q: "How do the calculator feature works?",
+	// 	 a: "The calculator estimates your attendance based only on the classes for which data is currently available. It does not consider the total number of classes scheduled for the entire semester, but rather works with the present attendance records shown in the ERP.",
+	// },
+	// {
+	// 	q: "How often is the attendance updated?",
+	// 	a: "Attendance is updated daily based on records from the official ERP portal.",
+	// },
 	{
 		q: "Can I access the website from my phone?",
 		a: "Yes, the website is fully responsive and works on mobile, tablet, or desktop.",
@@ -23,10 +23,10 @@ const faqs = [
 		q: "Who can use this platform?",
 		a: "The platform is mainly designed for CBIT students, but faculty and staff can also explore its features.",
 	},
-	{
-		q: "What should I do if I find incorrect data?",
-		a: "Contact the admin at projectfeedback86@gmail.com for verification and correction.",
-	},
+	// {
+	// 	q: "What should I do if I find incorrect data?",
+	// 	a: "Contact the admin at projectfeedback86@gmail.com for verification and correction.",
+	// },
 	{
 		q: "How can I feature an upcoming event on the website?",
 		a: (

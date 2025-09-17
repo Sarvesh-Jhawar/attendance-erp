@@ -28,15 +28,6 @@ export default function Sidebar({ open, setOpen, onLogout }: { open: boolean, se
           </Link>
           <hr className="border-dotted border-t-2 border-purple-700 my-1" />
           <div className="flex items-center">
-            <Link href="/mark-your-attendance" className="text-purple-100 hover:text-white transition font-medium">
-              Mark Your Attendance
-            </Link>
-            <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-white shadow animate-pulse">
-              NEW
-            </span>
-          </div>
-          <hr className="border-dotted border-t-2 border-purple-700 my-1" />
-          <div className="flex items-center">
             <Link href="/recruitment-forms" className="text-purple-100 hover:text-white transition font-medium">
               Recruitment Forms
             </Link>
@@ -53,12 +44,14 @@ export default function Sidebar({ open, setOpen, onLogout }: { open: boolean, se
           <hr className="border-dotted border-t-2 border-purple-700 my-1" />
           <Link href="/feedback" className="text-purple-100 hover:text-white transition font-medium">Feedback</Link>
           <hr className="border-dotted border-t-2 border-purple-700 my-1" />
-          <button
-            onClick={onLogout}
-            className="text-purple-100 hover:text-white transition font-medium text-left"
-          >
-            Logout
-          </button>
+          <div className="flex items-center">
+            <div className="text-purple-100 transition font-medium opacity-50 cursor-not-allowed">
+              Mark Your Attendance
+            </div>
+            <span className="ml-2 px-2 py-0.5 rounded-full text-xs font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-white shadow opacity-50">
+              NEW
+            </span>
+          </div>
         </nav>
       </aside>
       {/* Overlay for when sidebar is open */}
