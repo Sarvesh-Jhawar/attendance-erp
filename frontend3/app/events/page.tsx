@@ -22,10 +22,10 @@ const events = [
 		
 	 },
 	 {
-	 	club: "CBIT FinFoundry",
-		poster: "/images/Finfoundry.jpg",
-		name: "Recruitment Drive",
-		date: "12-09-2025",
+	 	club: "VMedha",
+		poster: "/images/vMedhaEvent.jpg",
+		name: "Workshop",
+		date: "20-09-2025",
 	 },
 	
 ]; 
