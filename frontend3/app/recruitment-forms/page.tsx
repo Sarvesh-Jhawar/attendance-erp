@@ -29,9 +29,9 @@ const forms = [
 		eligibility: "2nd & 3rd year",
 	},
 	{
-		club: "IEEE-SSIT",
-		link: "https://forms.gle/SyQevrpgDV5LEiVa8",
-		lastDate: "13-09-2025",
+		club: "United Dance Crew (UDC)",
+		link: "https://forms.gle/2WAqkvK8oVUh6wpeA",
+		lastDate: "22-09-2025",
 		eligibility: "Open for All",
 	},
 	{
