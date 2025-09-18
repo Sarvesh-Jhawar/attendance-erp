@@ -24,7 +24,7 @@ const events = [
 	 {
 	 	club: "VMedha",
 		poster: "/images/vMedhaEvent.jpg",
-		name: "Workshop",
+		name: "Design thinking using AI - Workshop",
 		date: "20-09-2025",
 	 },
 	
